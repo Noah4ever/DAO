@@ -54,11 +54,14 @@ public class Adresse implements IAdresse {
         this.ort = ort;
     }
 
-    public String getLand() {
-        return land;
-    }
 
     public String toString() {
-        return strasse + " " + hausNr + ", " + plz + " " + ort + ", " + land;
+        return "Adresse{" +
+                "strasse='" + strasse + '\'' +
+                ", hausNr='" + hausNr + '\'' +
+                ", plz='" + plz + '\'' +
+                ", ort='" + ort + '\'' +
+                ", land='" + land + '\'' +
+                '}';
     }
 }
