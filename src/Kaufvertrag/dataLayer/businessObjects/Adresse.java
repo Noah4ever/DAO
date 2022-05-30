@@ -63,5 +63,5 @@ public class Adresse implements IAdresse {
                 ", ort='" + ort + '\'' +
                 ", land='" + land + '\'' +
                 '}';
-    }   
+    }
 }
