@@ -19,7 +19,6 @@ public class Ware implements IWare {
         this.beschreibung = "";
         this.besonderheiten = null;
         this.maengel = null;
-
     }
 
     public void setId(int id){
