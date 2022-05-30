@@ -25,10 +25,6 @@ public class Ware implements IWare {
         this.id = id;
     }
 
-    public String toString() {
-        return bezeichnung + ": " + preis + "€" + "\nBeschreibung: " + beschreibung + "\nBesonderheiten: " + besonderheiten + "\nMängel: " + maengel;
-    }
-
     @Override
     public int getId() {
         return id;
@@ -69,5 +65,10 @@ public class Ware implements IWare {
     @Override
     public List<String> getMaengel() {
         return maengel;
+    }
+
+    @Override
+    public String toString() {
+        return bezeichnung + ": " + preis + "€" + "\nBeschreibung: " + beschreibung + "\nBesonderheiten: " + besonderheiten + "\nMängel: " + maengel;
     }
 }

@@ -59,4 +59,8 @@ public class Vertragspartner implements IVertragspartner {
     public void setAdresse(IAdresse adresse) {
         this.adresse = adresse;
     }
+
+    public String toString() {
+        return vorname + " " + nachname + "\n" + adresse.toString();
+    }
 }
