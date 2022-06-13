@@ -7,14 +7,12 @@ public class Adresse implements IAdresse {
     private String hausNr;
     private String plz;
     private String ort;
-    private String land;
 
-    public Adresse(String strasse, String hausNr, String plz, String ort, String land) {
+    public Adresse(String strasse, String hausNr, String plz, String ort) {
         this.strasse = strasse;
         this.hausNr = hausNr;
         this.plz = plz;
         this.ort = ort;
-        this.land = land;
     }
 
     public String getStrasse() {
@@ -61,7 +59,6 @@ public class Adresse implements IAdresse {
                 ", hausNr='" + hausNr + '\'' +
                 ", plz='" + plz + '\'' +
                 ", ort='" + ort + '\'' +
-                ", land='" + land + '\'' +
                 '}';
     }
 }
