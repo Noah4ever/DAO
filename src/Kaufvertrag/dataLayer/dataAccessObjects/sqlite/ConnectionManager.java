@@ -1,7 +1,5 @@
 package Kaufvertrag.dataLayer.dataAccessObjects.sqlite;
 
-
-
 import java.sql.*;
 
 import static java.sql.DriverManager.getConnection;
