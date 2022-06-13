@@ -21,11 +21,18 @@ public class WareDaoXml implements IWareDao {
 
     @Override
     public List<IWare> read() {
-        return null;
+        ServiceXml serviceXml = new ServiceXml("D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml");
+        return serviceXml.Ware();
     }
 
     @Override
     public IWare read(int id) throws DaoException {
+        List<IWare> ware = read();
+        for(IWare w : ware){
+            if(w.getId() == id){
+                return w;
+            }
+        }
         return null;
     }
 

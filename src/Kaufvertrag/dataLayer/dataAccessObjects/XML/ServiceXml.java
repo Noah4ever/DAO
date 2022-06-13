@@ -1,5 +1,6 @@
 package Kaufvertrag.dataLayer.dataAccessObjects.XML;
 
+import Kaufvertrag.businessObjects.IWare;
 import Kaufvertrag.dataLayer.businessObjects.Ware;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -13,11 +14,7 @@ import java.io.File;
 import java.util.List;
 
 public class ServiceXml {
-    public static void main(String[] args) {
-        new ServiceXml("D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml");
-        Ware();
-    }
-    private static Element root;
+    private Element root;
 
     public ServiceXml(String path){
         /*String xmlFile = "D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml";*/
@@ -35,25 +32,39 @@ public class ServiceXml {
         }
     }
 
-    public static void Ware(){
-        Element wData = root.getChild("Ware"); // Finds the first child element called "Ware"
-        String id = wData.getChildText("id");
-        String bezeichnung = wData.getChildText("bezeichnung");
-        String beschreibung = wData.getChildText("beschreibung");
-        String preis = wData.getChildText("preis");
-        String besonderheiten = wData.getChildText("besonderheiten");
-        String maengel = wData.getChildText("maengel");
-        if( bezeichnung != null && preis != null){
-            // Check if preis is number
-            try{
-                Ware ware = new Ware(bezeichnung, Integer.parseInt(preis));
-            }catch (NumberFormatException e){
-                System.out.println("Preis ist keine Zahl");
+    //
+
+    public List<IWare> Ware(){
+        List<IWare> wareList = null;
+        List<Element> wData = root.getChildren("Ware"); // Finds the first child element called "Ware"
+        for (Element w : wData) {
+
+            String id = w.getChildText("id");
+
+            String bezeichnung = w.getChildText("bezeichnung");
+            String beschreibung = w.getChildText("beschreibung");
+            String preis = w.getChildText("preis");
+            String besonderheiten = w.getChildText("besonderheiten");
+            String maengel = w.getChildText("maengel");
+
+            if( bezeichnung != null && preis != null && isNumeric(preis)){
+
+
+                IWare ware = null;
+                if(beschreibung != null){
+                    ware.setBeschreibung(beschreibung);
+                }
+                if(besonderheiten != null) {
+                    ware.getBesonderheiten().add(besonderheiten);
+                }
+                if(maengel != null) {
+                    ware.getMaengel().add(maengel);
+                }
+
+                wareList.add(ware);
             }
-
-
         }
-
+        return wareList;
     }
 
     public List<Element>Vertragspartner(){
