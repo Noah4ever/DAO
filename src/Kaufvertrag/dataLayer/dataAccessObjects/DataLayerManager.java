@@ -1,6 +1,9 @@
 package Kaufvertrag.dataLayer.dataAccessObjects;
 
-public class DataLayerManager {
+import Kaufvertrag.dataLayer.dataAccessObjects.XML.DataLayerXml;
+import Kaufvertrag.exceptions.DaoException;
+
+public class DataLayerManager  {
     private static DataLayerManager instance = null;
     private String persistenceType;
 
@@ -16,8 +19,14 @@ public class DataLayerManager {
         return instance;
     }
 
-    public IDataLayer getDataLayer(){
-       return null; // TODO: FIX
+    public IDataLayer getDataLayer() throws DaoException { // TODO: FIX
+       if(persistenceType == "xml"){
+           return new DataLayerXml();
+       }else if(persistenceType == "sqlite"){
+           return null; // TODO: implement
+       }else{
+           throw new DaoException("Persistence type not supported!");
+       }
     }
 
     private String readPersistenceType() {
