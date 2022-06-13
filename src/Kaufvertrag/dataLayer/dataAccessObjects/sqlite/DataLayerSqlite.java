@@ -8,11 +8,12 @@ public class DataLayerSqlite implements IDataLayer {
 
     @Override
     public IVertragspartnerDao getVertragspartnerDao() {
-        return null;
+        return new VertragspartnerDaoSqlite();
     }
 
     @Override
     public IWareDao getWareDao() {
-        return null;
+        return new WareDaoSqlite();
     }
+
 }
