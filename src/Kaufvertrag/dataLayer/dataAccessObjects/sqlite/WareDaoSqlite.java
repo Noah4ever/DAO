@@ -57,8 +57,6 @@ public class WareDaoSqlite implements IWareDao {
                 String bezeichnung = rs.getString("bezeichnung");
                 String preis = rs.getString("preis");
                 String beschreibung = rs.getString("beschreibung");
-                String maengel = rs.getString("maengel");
-                String besonderheiten = rs.getString("besonderheiten");
 
                 IWare ware = new Ware(bezeichnung, Double.parseDouble(preis));
                 ware.setBeschreibung(beschreibung);
@@ -84,8 +82,6 @@ public class WareDaoSqlite implements IWareDao {
                 String bezeichnung = rs.getString("bezeichnung");
                 String preis = rs.getString("preis");
                 String beschreibung = rs.getString("beschreibung");
-                String maengel = rs.getString("maengel");
-                String besonderheiten = rs.getString("besonderheiten");
 
                 ware = new Ware(bezeichnung, Double.parseDouble(preis));
                 ware.setBeschreibung(beschreibung);

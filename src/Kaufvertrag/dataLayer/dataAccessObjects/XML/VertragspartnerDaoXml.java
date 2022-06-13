@@ -23,7 +23,7 @@ public class VertragspartnerDaoXml  implements IVertragspartnerDao {
     }
 
     @Override
-    public List<IVertragspartner> read(int id) {
+    public IVertragspartner read(int id) {
         return null;
     }
 
