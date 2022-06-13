@@ -19,7 +19,7 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
 
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner as v LEFT JOIN Adresse as a ON a.id = v.adresseId;");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner;");
 
             while (rs.next()) {
                 String vorname = rs.getString("vorname");
@@ -30,9 +30,8 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
                 String plz = rs.getString("plz");
                 String ort = rs.getString("ort");
                 String hausNr = rs.getString("hausNr");
-                String land = rs.getString("land");
 
-                Adresse adresse = new Adresse(strasse, plz, ort, hausNr, land);
+                Adresse adresse = new Adresse(strasse, plz, ort, hausNr);
 
                 vertragspartner = new Vertragspartner(vorname, nachname);
                 vertragspartner.setAusweisNr(ausweisNr);
@@ -69,7 +68,7 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
                 String ort = rs.getString("ort");
                 String hausNr = rs.getString("hausNr");
 
-                Adresse adresse = new Adresse(strasse, plz, ort, hausNr,);
+                Adresse adresse = new Adresse(strasse, plz, ort, hausNr);
 
                 IVertragspartner vertragspartner = new Vertragspartner(vorname, nachname);
                 vertragspartner.setAusweisNr(ausweisNr);
@@ -91,7 +90,7 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
 
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner as v LEFT JOIN Adresse as a ON a.id = v.adresseId WHERE v.id = " + id + ";");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner WHERE id = " + id + ";");
 
             while (rs.next()) {
                 String vorname = rs.getString("vorname");
@@ -124,8 +123,14 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
 
         try {
             Statement stmt = connection.createStatement();
-            stmt.executeUpdate("UPDATE Vertragspartner SET vorname = '" + vertragspartner.getVorname() + "', nachname = '" + vertragspartner.getNachname() + "', ausweisNr = '" + vertragspartner.getAusweisNr() + "' WHERE id = " + vertragspartner.getId() + ";");
-            stmt.executeUpdate("UPDATE Adresse SET strasse = '" + vertragspartner.getAdresse().getStrasse() + "', plz = '" + vertragspartner.getAdresse().getPlz() + "', ort = '" + vertragspartner.getAdresse().getOrt() + "', hausNr = '" + vertragspartner.getAdresse().getHausNr() + "' WHERE id = " + vertragspartner.getAdresse().getId() + ";");
+            stmt.executeUpdate("UPDATE Vertragspartner SET vorname = '" + vertragspartner.getVorname() +
+                    "', nachname = '" + vertragspartner.getNachname() +
+                    "', ausweisNr = '" + vertragspartner.getAusweisNr() +
+                    "', hausNr = '" + vertragspartner.getAdresse().getHausNr() +
+                    "', plz = '" + vertragspartner.getAdresse().getPlz() +
+                    "', ort = '" + vertragspartner.getAdresse().getOrt() +
+                    "', strasse = '" + vertragspartner.getAdresse().getStrasse() +
+                    "' WHERE id = " + vertragspartner.getId() + ";");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new DaoException("Fehler beim Update eines Vertragspartners");
@@ -140,7 +145,6 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
         try {
             Statement stmt = connection.createStatement();
             stmt.executeUpdate("DELETE FROM Vertragspartner WHERE id = " + id + ";");
-            stmt.executeUpdate("DELETE FROM Adresse WHERE id = " + id + ";");
         } catch (SQLException e) {
             e.printStackTrace();
             throw new DaoException("Fehler beim Löschen eines Vertragspartners");
