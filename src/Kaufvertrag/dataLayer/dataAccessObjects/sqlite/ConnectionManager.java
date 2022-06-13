@@ -9,35 +9,40 @@ import static java.sql.DriverManager.getConnection;
 
 public class ConnectionManager {
 
-    private String CLASSNAME;
-    private String CONNECTIONSTRING;
-    private Connection existingConnection;
-    private boolean classLoaded;
+    private static String CLASSNAME;
+    private static String CONNECTIONSTRING = "jdbc:sqlite:db.sql";
+    private static Connection existingConnection;
+    private static boolean classLoaded;
 
-    public static void main(String[] args) {
-        getNewConnection();
-    }
     public static Connection getNewConnection() {
+        // TODO clsoe old connection if existingConnection is not null
         Connection connection = null;
         // Connect to sqlite
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = (Connection) getConnection("jdbc:sqlite:db.sql");
+            connection = (Connection) getConnection(CONNECTIONSTRING);
         } catch ( Exception e ) {
             System.err.println( e.getClass().getName() + ": " + e.getMessage() );
             System.exit(0);
         }
         System.out.println("Opened database successfully");
-
+        existingConnection = connection;
         return connection;
     }
 
-    /*
-    public Connection getExistingConnection() {
 
+    public static Connection getExistingConnection() {
+        return existingConnection;
     }
 
-    public void close(ResultSet resultSet, Statement statement, Connection connection) {
-
-    }*/
+    public static void close(ResultSet resultSet, Statement statement, Connection connection) {
+        // close connection
+        try {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
