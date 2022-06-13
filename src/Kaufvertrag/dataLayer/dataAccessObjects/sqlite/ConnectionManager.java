@@ -15,7 +15,7 @@ public class ConnectionManager {
     private static boolean classLoaded;
 
     public static Connection getNewConnection() {
-        // TODO clsoe old connection if existingConnection is not null
+        // TODO close old connection if existingConnection is not null
         Connection connection = null;
         // Connect to sqlite
         try {
