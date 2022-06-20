@@ -8,16 +8,20 @@ import java.io.IOException;
 import java.util.List;
 
 public class VertragspartnerDaoXml  implements IVertragspartnerDao {
-
+    private String path = "D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml";
     @Override
     public IVertragspartner create() {
 
+        ServiceXml serviceXml = new ServiceXml(path);
+        serviceXml.createVertragspartner();
         return null;
     }
 
     @Override
     public IVertragspartner create(IVertragspartner vertragspartner) {
 
+        ServiceXml serviceXml = new ServiceXml(path);
+        serviceXml.createVertragspartnerElement(vertragspartner);
         return null;
     }
 
