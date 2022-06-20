@@ -98,6 +98,38 @@ public class ServiceXml {
         return newWare;
     }
 
+
+    public IVertragspartner createVertragspartner() {
+        if(root.getChildren("Vertragspartner").size() < 2) {
+            Element vertragspartner = new Element("Vertragspartner");
+            root.addContent(vertragspartner);
+        }
+        return new Vertragspartner("",  "");
+    }
+
+    public IVertragspartner createVertragspartnerElement(IVertragspartner vertragspartner){
+        String vorname = vertragspartner.getVorname();
+        String nachmane = vertragspartner.getNachname();
+        IAdresse adresse = vertragspartner.getAdresse();
+        String  ausweisnummer = vertragspartner.getAusweisNr();
+        if(root.getChildren("Vertragspartner").size() < 2) {
+            Element vertragspartnerElement = new Element("Vertragspartner");// set the attributes
+            vertragspartnerElement.addContent(new Element("id").setText(String.valueOf(vertragspartner.getId())));
+            vertragspartnerElement.addContent(new Element("vorname").setText(vorname));
+            vertragspartnerElement.addContent(new Element("nachname").setText(nachmane));
+            vertragspartnerElement.addContent(new Element("ausweisNr").setText(ausweisnummer));
+            Element adresseElement = new Element("Adresse");
+            adresseElement.setAttribute("strasse", adresse.getStrasse());
+            adresseElement.setAttribute("hausNr", String.valueOf(adresse.getHausNr()));
+            adresseElement.setAttribute("plz", String.valueOf(adresse.getPlz()));
+            adresseElement.setAttribute("ort", adresse.getOrt());
+        }
+        Vertragspartner newVertragspartner = new Vertragspartner(vorname, nachmane);
+        newVertragspartner.setAusweisNr(ausweisnummer);
+        newVertragspartner.setAdresse(adresse);
+        return newVertragspartner;
+    }
+
     public void deleteVertragspartner(int id) throws IOException {
         FileOutputStream fos = new FileOutputStream(pathname);
         Element vertragspartnerElement = root.getChild("Vertragspartner");
