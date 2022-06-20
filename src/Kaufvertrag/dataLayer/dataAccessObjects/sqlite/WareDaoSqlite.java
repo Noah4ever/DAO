@@ -40,8 +40,31 @@ public class WareDaoSqlite implements IWareDao {
     }
 
     @Override
-    public IWare create(IWare ware) {
-        return null;
+    public IWare create(IWare ware) throws DaoException {
+        // SAve to sql
+        Connection connection = ConnectionManager.getNewConnection();
+        try {
+            String besonderheitenString = "";
+            for (String besonderheit : ware.getBesonderheiten()) {
+                besonderheitenString += besonderheit + ";";
+            }
+
+            String maengelString = "";
+            for (String maengel : ware.getMaengel()) {
+                maengelString += maengel + ";";
+            }
+            PreparedStatement stmt = connection.prepareStatement("INSERT INTO Ware (bezeichnung, preis, beschreibung, maengel, besonderheiten) VALUES (?, ?, ?, ?, ?);");
+            stmt.setString(1, ware.getBezeichnung());
+            stmt.setString(2, String.valueOf(ware.getPreis()));
+            stmt.setString(3, ware.getBeschreibung());
+            stmt.setString(4, besonderheitenString);
+            stmt.setString(5, maengelString);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DaoException("Fehler beim Erstellen einer Ware");
+        }
+        return ware;
     }
 
     @Override

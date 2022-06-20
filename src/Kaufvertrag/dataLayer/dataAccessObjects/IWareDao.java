@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IWareDao {
     public IWare create() throws DaoException;
-    public IWare create(IWare ware);
+    public IWare create(IWare ware) throws DaoException;
     public List<IWare> read() throws DaoException;
     public IWare read(int id) throws DaoException;
     public void update(IWare ware) throws DaoException;
