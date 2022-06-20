@@ -6,7 +6,7 @@ import Kaufvertrag.exceptions.DaoException;
 
 public class DataLayerManager  {
     private static DataLayerManager instance = null;
-    private String persistenceType;
+    public String persistenceType;
 
 
     private DataLayerManager() {

@@ -15,6 +15,7 @@ public class WareDaoXml implements IWareDao {
     public IWare create() {
         ServiceXml serviceXml = new ServiceXml(path);
         serviceXml.createWare();
+        return null;
     }
 
     @Override
@@ -26,7 +27,7 @@ public class WareDaoXml implements IWareDao {
 
     @Override
     public List<IWare> read() {
-        ServiceXml serviceXml = new ServiceXml(path;
+        ServiceXml serviceXml = new ServiceXml(path);
         return serviceXml.Ware();
     }
 
