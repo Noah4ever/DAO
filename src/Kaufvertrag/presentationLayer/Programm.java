@@ -24,15 +24,20 @@ public class Programm {
                 System.out.println("[1] XML");
                 System.out.println("[2] SQLite");
                 int input2 = Integer.parseInt(System.console().readLine());
-                IDataLayer dl;
+                IDataLayer dl = null;
                 if (input2 == 1) {
                     dlm.getInstance().persistenceType = "xml";
                     dl = dlm.getDataLayer();
+
                 } else if (input2 == 2) {
                     dlm.getInstance().persistenceType = "sqlite";
                     dl = dlm.getDataLayer();
+
                 } else {
                     System.out.println("Persistence type not supported!");
+                }
+                if(dl != null){
+
                 }
             } else if(input == 2) {
                 System.out.println("Neu erstellen");

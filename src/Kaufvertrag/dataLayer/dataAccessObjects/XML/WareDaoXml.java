@@ -9,25 +9,25 @@ import java.util.List;
 
 public class WareDaoXml implements IWareDao {
 
-    private String path = "D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml";
+    private String filename = "Kaufvertrag.xml";
 
     @Override
     public IWare create() {
-        ServiceXml serviceXml = new ServiceXml(path);
+        ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.createWare();
         return null;
     }
 
     @Override
     public IWare create(IWare ware) {
-        ServiceXml serviceXml = new ServiceXml(path);
+        ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.createWareElement(ware);
         return null;
     }
 
     @Override
     public List<IWare> read() {
-        ServiceXml serviceXml = new ServiceXml(path);
+        ServiceXml serviceXml = new ServiceXml(filename);
         return serviceXml.Ware();
     }
 
@@ -44,13 +44,13 @@ public class WareDaoXml implements IWareDao {
 
     @Override
     public void update(IWare ware) throws DaoException, IOException {
-        ServiceXml serviceXml = new ServiceXml(path);
+        ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.updateWare(ware);
     }
 
     @Override
     public void delete(int id) throws DaoException, IOException {
-        ServiceXml serviceXml = new ServiceXml(path);
+        ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.deleteWare(id);
     }
 }

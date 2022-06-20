@@ -9,6 +9,8 @@ import java.util.List;
 
 public class VertragspartnerDaoXml  implements IVertragspartnerDao {
 
+
+
     @Override
     public IVertragspartner create() {
 

@@ -22,10 +22,11 @@ public class ServiceXml {
     private Document document;
     private String pathname;
 
-    public ServiceXml(String path){
-        /*String xmlFile = "D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml";*/
-        String xmlFile = path;
-        pathname = xmlFile;
+    private String baseDir = "src\\Kaufvertrag\\save\\";
+
+    public ServiceXml(String filename){
+        pathname = baseDir + filename;
+        String xmlFile = filename;
         File file = new File(xmlFile);
         try {
             SAXBuilder saxBuilder = new SAXBuilder(); // create a SAX builder
