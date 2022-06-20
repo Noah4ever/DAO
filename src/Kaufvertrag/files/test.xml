@@ -1,34 +1,31 @@
-<?xml version="1.0"?>
-<Kaufvertrag> <!-- Root  -->
+<?xml version="1.0" encoding="UTF-8"?>
+<Kaufvertrag>
+  <!-- Root  -->
   <Vertragspartner>
-      <vorname>Peter</vorname>
-      <nachname>Oberhals</nachname>
-      <ausweisnummer>123456789</ausweisnummer>
-	  <id>1</id>
-      <adresse>
-           <strasse>Bremerstrasse</strasse>
-           <hausNr>2</hausNr>
-		   <plz>28201</plz>
-           <ort>Bremen</ort>
-      </adresse>
+    <vorname>Peter</vorname>
+    <nachname>Oberhals</nachname>
+    <ausweisnummer>123456789</ausweisnummer>
+    <id>1</id>
+    <adresse>
+      <strasse>Bremerstrasse</strasse>
+      <hausNr>2</hausNr>
+      <plz>28201</plz>
+      <ort>Bremen</ort>
+    </adresse>
   </Vertragspartner>
   <Vertragspartner>
-      <vorname>Franz</vorname>
-      <nachname>Geizhals</nachname>
-      <ausweisnummer>987654321</ausweisnummer>
-	  <id>2</id>
-      <adresse>
-           <strasse>Sykerweg</strasse>
-           <hausNr>10</hausNr>
-		   <plz>28857</plz>
-           <ort>Syke</ort>
-      </adresse>
+    <vorname>Franz</vorname>
+    <nachname>Geizhals</nachname>
+    <ausweisnummer>987654321</ausweisnummer>
+    <id>2</id>
+    <adresse>
+      <strasse>Sykerweg</strasse>
+      <hausNr>10</hausNr>
+      <plz>28857</plz>
+      <ort>Syke</ort>
+    </adresse>
   </Vertragspartner>
   <Ware>
-		<id>1</id>
-		<bezeichnung>Stock</bezeichnung>
-		<beschreibung>Lang und hart.</beschreibung>
-		<preis>2.49</preis>
-		
+    <id>1</id>
   </Ware>
 </Kaufvertrag>

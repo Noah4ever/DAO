@@ -10,26 +10,29 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
 import org.jdom2.output.SAXOutputter;
 import org.jdom2.output.XMLOutputter;
 
-import java.io.Console;
-import java.io.File;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.util.List;
 
 public class ServiceXml {
     private Element root;
+    private Document document;
+    private String pathname;
 
     public ServiceXml(String path){
         /*String xmlFile = "D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml";*/
         String xmlFile = path;
+        pathname = xmlFile;
         File file = new File(xmlFile);
         try {
             SAXBuilder saxBuilder = new SAXBuilder(); // create a SAX builder
             Document document = saxBuilder.build(file); // parse the file
             Element root = document.getRootElement(); // get the root element
             this.root = root;
+            this.document = document;
         } catch (JDOMException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -37,7 +40,81 @@ public class ServiceXml {
         }
     }
 
-    //
+    public void updateVertragspartner(IVertragspartner vertragspartner){
+        List<Element> vertragspartnerList = root.getChildren("Vertragspartner"); // get the list of vertragspartner
+        for(Element v : vertragspartnerList) { // iterate through the list
+            if (v.getAttributeValue("id").equals(String.valueOf(vertragspartner.getId()))) { // if the id is the same as the id of the vertragspartner
+                v.setAttribute("id", String.valueOf(vertragspartner.getId()));
+                v.setAttribute("vorname", vertragspartner.getVorname());
+                v.setAttribute("nachname", vertragspartner.getNachname());
+
+                Element adresse = v.getChild("Adresse"); // get the adresse element
+                adresse.setAttribute("strasse", vertragspartner.getAdresse().getStrasse());
+                adresse.setAttribute("hausNr", String.valueOf(vertragspartner.getAdresse().getHausNr()));
+                adresse.setAttribute("plz", String.valueOf(vertragspartner.getAdresse().getPlz()));
+                adresse.setAttribute("ort", vertragspartner.getAdresse().getOrt());
+            }
+        }
+    }
+
+
+
+    public void updateWare(IWare ware) throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
+
+        Element wareElement = root.getChild("Ware");
+        wareElement.removeContent();
+        wareElement.addContent(new Element("id").setText(String.valueOf(ware.getId())));
+        wareElement.addContent(new Element("bezeichnung").setText(String.valueOf(ware.getBezeichnung())));
+        wareElement.addContent(new Element("beschreibung").setText(String.valueOf(ware.getBeschreibung())));
+        wareElement.addContent(new Element("preis").setText(String.valueOf(ware.getPreis())));
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
+    }
+
+    public IWare createWare() {
+        if(root.getChild("Ware") == null) {
+            Element ware = new Element("Ware");
+            root.addContent(ware);
+        }
+        return new Ware("",  0);
+    }
+
+    public IWare createWareElement(IWare ware){
+        String bezeichnung = ware.getBezeichnung();
+        String beschreibung = ware.getBeschreibung();
+        double preis = ware.getPreis();
+        if(root.getChild("Ware") == null) {
+            Element wareElement = new Element("Ware");
+            wareElement.addContent(new Element("id").setText(String.valueOf(ware.getId())));
+            wareElement.addContent(new Element("bezeichnung").setText(bezeichnung));
+            wareElement.addContent(new Element("beschreibung").setText(beschreibung));
+            wareElement.addContent(new Element("preis").setText(String.valueOf(preis)));
+            root.addContent(wareElement);
+        }
+        Ware newWare = new Ware(bezeichnung, preis);
+        newWare.setBeschreibung(beschreibung);
+        return newWare;
+    }
+
+    public void deleteVertragspartner(int id) throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
+        Element vertragspartnerElement = root.getChild("Vertragspartner");
+        vertragspartnerElement.removeContent();
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
+    }
+
+    public void deleteWare(int id) throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
+        Element wareElement = root.getChild("Ware");
+        wareElement.removeContent();
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
+    }
 
     public List<IWare> Ware(){
         List<IWare> wareList = null;
@@ -54,7 +131,6 @@ public class ServiceXml {
 
             if( bezeichnung != null && preis != null && isNumeric(preis)){
 
-
                 IWare ware = null;
                 if(beschreibung != null){
                     ware.setBeschreibung(beschreibung);
@@ -65,8 +141,8 @@ public class ServiceXml {
                 if(maengel != null) {
                     ware.getMaengel().add(maengel);
                 }
-
                 wareList.add(ware);
+
             }
         }
         return wareList;
