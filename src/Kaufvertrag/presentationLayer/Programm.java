@@ -19,8 +19,6 @@ public class Programm {
     static BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(System.in));
     static IDataLayer dl = null;
     public static void main(String[] args) {
-        System.out.println("Hello World!");
-
         DataLayerManager dlm = DataLayerManager.getInstance();
         
         
@@ -183,51 +181,53 @@ public class Programm {
 
         int input5 = Integer.parseInt(reader.readLine());
         if(input5 == 1){
-            VertragspartnerBearbeiten1(vp, w, input5);
+            VertragspartnerBearbeiten1(vp.get(0), w);
         } else if(input5 == 2){
-            VertragspartnerBearbeiten1(vp, w, input5);
+            VertragspartnerBearbeiten1(vp.get(1), w);
         } else {
             System.out.println("Input incorrect!");
+            VertragspartnerBearbeiten(vp, w);
         }
     }
 
-    private static void VertragspartnerBearbeiten1(List<IVertragspartner> vp, List<IWare> w, int input5) throws IOException {
-        System.out.println("---< Vertragspartner - Bearbeiten - " + vp.get(input5-1).getNachname() + ", " + vp.get(input5-1).getVorname() + " >---");
+    private static void VertragspartnerBearbeiten1(IVertragspartner vp, List<IWare> w) throws IOException {
+        System.out.println("---< Vertragspartner - Bearbeiten - " + vp.getNachname() + ", " + vp.getVorname() + " >---");
 
         VertragspartnerOptions();
 
         int input6 = Integer.parseInt(reader.readLine());
         if(input6 == 1){
-            System.out.println("Neuer Vorname (Vorname): ");
+            System.out.println("Neuer Vorname (" + vp.getVorname() + "): ");
             String vorname = reader.readLine();
-            vp.get(input5-1).setVorname(vorname);
+            vp.setVorname(vorname);
         } else if(input6 == 2){
-            System.out.println("Neuer Nachname: ");
+            System.out.println("Neuer Nachname (" + vp.getNachname() + "): ");
             String nachname = reader.readLine();
-            vp.get(input5-1).setNachname(nachname);
+            vp.setNachname(nachname);
         } else if(input6 == 3){
-            System.out.println("Neue Ausweisnummer: ");
+            System.out.println("Neue Ausweisnummer (" + vp.getAusweisNr() + "): ");
             String ausweisnummer = reader.readLine();
-            vp.get(input5-1).setAusweisNr(ausweisnummer);
+            vp.setAusweisNr(ausweisnummer);
         } else if(input6 == 4){
-            System.out.println("Neue Strasse: ");
+            System.out.println("Neue Strasse (" + vp.getAdresse().getStrasse() + "): ");
             String strasse = reader.readLine();
-            vp.get(input5-1).getAdresse().setStrasse(strasse);
+            vp.getAdresse().setStrasse(strasse);
         } else if(input6 == 5){
-            System.out.println("Neue Hausnummer: ");
+            System.out.println("Neue Hausnummer (" + vp.getAdresse().getHausNr() + "): ");
             String hausnummer = reader.readLine();
-            vp.get(input5-1).getAdresse().setHausNr(hausnummer);
+            vp.getAdresse().setHausNr(hausnummer);
         } else if(input6 == 6){
-            System.out.println("Neue PLZ: ");
+            System.out.println("Neue PLZ (" + vp.getAdresse().getPlz() + "): ");
             String plz = reader.readLine();
-            vp.get(input5-1).getAdresse().setPlz(plz);
+            vp.getAdresse().setPlz(plz);
         } else if(input6 == 7){
-            System.out.println("Neuer Ort: ");
+            System.out.println("Neuer Ort (" + vp.getAdresse().getOrt() + "): ");
             String ort = reader.readLine();
-            vp.get(input5-1).getAdresse().setOrt(ort);
+            vp.getAdresse().setOrt(ort);
         } else {
             System.out.println("Invalid input");
         }
+        VertragspartnerBearbeiten1(vp, w);
     }
 
 }

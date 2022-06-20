@@ -12,4 +12,16 @@
       <ort>Syke</ort>
     </Adresse>
   </Vertragspartner>
+  <Vertragspartner>
+    <id>0</id>
+    <vorname>Julius</vorname>
+    <nachname>Ewert</nachname>
+    <ausweisNr>1234</ausweisNr>
+    <Adresse>
+      <strasse>bremen irgendwo</strasse>
+      <hausNr>69</hausNr>
+      <plz>28107</plz>
+      <ort>Bremen</ort>
+    </Adresse>
+  </Vertragspartner>
 </Kaufvertrag>
