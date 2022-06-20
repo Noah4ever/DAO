@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <Kaufvertrag> <!-- Root  -->
   <Vertragspartner>
       <vorname>Peter</vorname>
@@ -24,5 +24,11 @@
            <ort>Syke</ort>
       </adresse>
   </Vertragspartner>
-  <Ware><id>1</id></Ware>
+  <Ware>
+		<id>1</id>
+		<bezeichnung>Stock</bezeichnung>
+		<beschreibung>Lang und hart.</beschreibung>
+		<preis>2.49</preis>
+		
+  </Ware>
 </Kaufvertrag>
