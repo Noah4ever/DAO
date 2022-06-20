@@ -9,25 +9,25 @@ import java.util.List;
 
 public class VertragspartnerDaoXml  implements IVertragspartnerDao {
 
-
+    private String filename = "Kaufvertrag.xml";
 
     @Override
-    public IVertragspartner create() {
-
+    public IVertragspartner create() throws IOException {
+        ServiceXml serviceXml = new ServiceXml(filename);
+        serviceXml.createVertragspartner();
         return null;
     }
 
     @Override
-    public IVertragspartner create(IVertragspartner vertragspartner) {
-
+    public IVertragspartner create(IVertragspartner vertragspartner) throws IOException {
+        ServiceXml serviceXml = new ServiceXml(filename);
+        serviceXml.createVertragspartnerElement(vertragspartner);
         return null;
     }
 
     @Override
     public List<IVertragspartner> read() {
-        // D:\.Downloads\Programming\IntelliJ\projects\DAO\DAO\src\Kaufvertrag\files\test.xml
-        // D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml
-        ServiceXml serviceXml = new ServiceXml("D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml");
+        ServiceXml serviceXml = new ServiceXml(filename);
         return serviceXml.Vertragspartner();
     }
 
@@ -42,14 +42,14 @@ public class VertragspartnerDaoXml  implements IVertragspartnerDao {
         return null;
     }
     @Override
-    public void update(IVertragspartner vertragspartner) {
-        ServiceXml serviceXml = new ServiceXml("D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml");
+    public void update(IVertragspartner vertragspartner) throws IOException {
+        ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.updateVertragspartner(vertragspartner);
     }
 
     @Override
     public void delete(int id) throws IOException {
-        ServiceXml serviceXml = new ServiceXml("D:\\.Downloads\\Programming\\IntelliJ\\projects\\DAO\\DAO\\src\\Kaufvertrag\\files\\test.xml");
+        ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.deleteVertragspartner(id);
     }
 }

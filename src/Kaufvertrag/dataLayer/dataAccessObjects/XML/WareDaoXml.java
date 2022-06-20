@@ -12,14 +12,14 @@ public class WareDaoXml implements IWareDao {
     private String filename = "Kaufvertrag.xml";
 
     @Override
-    public IWare create() {
+    public IWare create() throws IOException {
         ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.createWare();
         return null;
     }
 
     @Override
-    public IWare create(IWare ware) {
+    public IWare create(IWare ware) throws IOException {
         ServiceXml serviceXml = new ServiceXml(filename);
         serviceXml.createWareElement(ware);
         return null;

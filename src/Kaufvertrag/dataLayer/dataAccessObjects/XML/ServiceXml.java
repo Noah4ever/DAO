@@ -15,6 +15,7 @@ import org.jdom2.output.SAXOutputter;
 import org.jdom2.output.XMLOutputter;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceXml {
@@ -26,22 +27,39 @@ public class ServiceXml {
 
     public ServiceXml(String filename){
         pathname = baseDir + filename;
-        String xmlFile = filename;
+        String xmlFile = pathname;
+        // Check if file exists and create if not
+
         File file = new File(xmlFile);
-        try {
-            SAXBuilder saxBuilder = new SAXBuilder(); // create a SAX builder
-            Document document = saxBuilder.build(file); // parse the file
-            Element root = document.getRootElement(); // get the root element
-            this.root = root;
-            this.document = document;
-        } catch (JDOMException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(!file.exists()){
+            try {
+                file.createNewFile();
+                SAXBuilder builder = new SAXBuilder();
+                document = (Document) builder.build(new StringReader("<Kaufvertrag></Kaufvertrag>"));
+                root = document.getRootElement();
+                FileOutputStream fos = new FileOutputStream(pathname);
+                XMLOutputter xmlOutput = new XMLOutputter(Format.getPrettyFormat());
+                xmlOutput.output(document, fos);
+
+            } catch (IOException | JDOMException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // Read file
+            try {
+                SAXBuilder builder = new SAXBuilder();
+                document = (Document) builder.build(new File(xmlFile));
+                root = document.getRootElement();
+            } catch (JDOMException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public void updateVertragspartner(IVertragspartner vertragspartner){
+    public void updateVertragspartner(IVertragspartner vertragspartner) throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
         List<Element> vertragspartnerList = root.getChildren("Vertragspartner"); // get the list of vertragspartner
         for(Element v : vertragspartnerList) { // iterate through the list
             if (v.getAttributeValue("id").equals(String.valueOf(vertragspartner.getId()))) { // if the id is the same as the id of the vertragspartner
@@ -56,6 +74,10 @@ public class ServiceXml {
                 adresse.setAttribute("ort", vertragspartner.getAdresse().getOrt());
             }
         }
+
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
     }
 
 
@@ -74,15 +96,20 @@ public class ServiceXml {
         fos.close();
     }
 
-    public IWare createWare() {
+    public IWare createWare() throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
         if(root.getChild("Ware") == null) {
             Element ware = new Element("Ware");
             root.addContent(ware);
         }
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
         return new Ware("",  0);
     }
 
-    public IWare createWareElement(IWare ware){
+    public IWare createWareElement(IWare ware) throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
         String bezeichnung = ware.getBezeichnung();
         String beschreibung = ware.getBeschreibung();
         double preis = ware.getPreis();
@@ -96,19 +123,29 @@ public class ServiceXml {
         }
         Ware newWare = new Ware(bezeichnung, preis);
         newWare.setBeschreibung(beschreibung);
+
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
         return newWare;
     }
 
 
-    public IVertragspartner createVertragspartner() {
+    public IVertragspartner createVertragspartner() throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
         if(root.getChildren("Vertragspartner").size() < 2) {
             Element vertragspartner = new Element("Vertragspartner");
             root.addContent(vertragspartner);
         }
+
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
         return new Vertragspartner("",  "");
     }
 
-    public IVertragspartner createVertragspartnerElement(IVertragspartner vertragspartner){
+    public IVertragspartner createVertragspartnerElement(IVertragspartner vertragspartner) throws IOException {
+        FileOutputStream fos = new FileOutputStream(pathname);
         String vorname = vertragspartner.getVorname();
         String nachmane = vertragspartner.getNachname();
         IAdresse adresse = vertragspartner.getAdresse();
@@ -120,14 +157,21 @@ public class ServiceXml {
             vertragspartnerElement.addContent(new Element("nachname").setText(nachmane));
             vertragspartnerElement.addContent(new Element("ausweisNr").setText(ausweisnummer));
             Element adresseElement = new Element("Adresse");
-            adresseElement.setAttribute("strasse", adresse.getStrasse());
-            adresseElement.setAttribute("hausNr", String.valueOf(adresse.getHausNr()));
-            adresseElement.setAttribute("plz", String.valueOf(adresse.getPlz()));
-            adresseElement.setAttribute("ort", adresse.getOrt());
+            adresseElement.addContent(new Element("strasse").setText(adresse.getStrasse()));
+            adresseElement.addContent(new Element("hausNr").setText(String.valueOf(adresse.getHausNr())));
+            adresseElement.addContent(new Element("plz").setText(String.valueOf(adresse.getPlz())));
+            adresseElement.addContent(new Element("ort").setText(adresse.getOrt()));
+            vertragspartnerElement.addContent(adresseElement);
+            root.addContent(vertragspartnerElement);
         }
         Vertragspartner newVertragspartner = new Vertragspartner(vorname, nachmane);
         newVertragspartner.setAusweisNr(ausweisnummer);
         newVertragspartner.setAdresse(adresse);
+
+
+        XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutputter.output(document, fos);
+        fos.close();
         return newVertragspartner;
     }
 
@@ -183,13 +227,13 @@ public class ServiceXml {
 
     public List<IVertragspartner>Vertragspartner(){
         List<Element> list = root.getChildren("Vertragspartner"); // Finds all children elements called "Vertragspartner"
-        List<IVertragspartner> vertragspartnerList = null;
+        List<IVertragspartner> vertragspartnerList = new ArrayList<>();
         for (Element vertragspartner : list) { // iterates through all children of the root element
             String id = vertragspartner.getChildText("id");
             String vorname = vertragspartner.getChildText("vorname");
             String nachname = vertragspartner.getChildText("nachname");
             String ausweisnummer = vertragspartner.getChildText("ausweisnummer");
-            Element adresseElement = vertragspartner.getChildren("adresse").get(0);
+            Element adresseElement = vertragspartner.getChildren("Adresse").get(0);
             IAdresse adresse;
             if(adresseElement != null){ // if the element is not null
                 String strasse = adresseElement.getChildText("strasse");
