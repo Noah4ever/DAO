@@ -3,6 +3,7 @@
   <Vertragspartner>
       <vorname>Peter</vorname>
       <nachname>Oberhals</nachname>
+      <ausweisnummer>123456789</ausweisnummer>
 	  <id>1</id>
       <adresse>
            <strasse>Bremerstrasse</strasse>
@@ -14,6 +15,7 @@
   <Vertragspartner>
       <vorname>Franz</vorname>
       <nachname>Geizhals</nachname>
+      <ausweisnummer>987654321</ausweisnummer>
 	  <id>2</id>
       <adresse>
            <strasse>Sykerweg</strasse>
@@ -27,5 +29,6 @@
 		<bezeichnung>Stock</bezeichnung>
 		<beschreibung>Lang und hart.</beschreibung>
 		<preis>2.49</preis>
+		
   </Ware>
 </Kaufvertrag>
