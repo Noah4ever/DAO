@@ -1,5 +1,6 @@
 package Kaufvertrag.presentationLayer;
 
+import Kaufvertrag.businessObjects.IAdresse;
 import Kaufvertrag.businessObjects.IVertragspartner;
 import Kaufvertrag.businessObjects.IWare;
 import Kaufvertrag.dataLayer.businessObjects.Adresse;
@@ -13,221 +14,283 @@ import Kaufvertrag.exceptions.DaoException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+class KaufvertragDaten {
+    public static List<IVertragspartner> Vertragspartner;
+    public static final String VertragspartnerInputfields[] = {"Vorname", "Nachname", "Ausweisnummer", "Strasse", "Hausnummer", "PLZ", "Ort"};
+
+    public static List<IWare> Waren;
+    public static final String WareInputfields[] = {"Bezeichnung", "Beschreibung", "Preis", "Besonderheiten", "Mängel"};
+
+}
 
 public class Programm {
     static BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(System.in));
     static IDataLayer dl = null;
-    public static void main(String[] args) {
-        DataLayerManager dlm = DataLayerManager.getInstance();
-        
-        
-        System.out.println("---< Kaufvertrag >---\n");
-        System.out.println("[1] Einlesen");
-        System.out.println("[2] Neu erstellen");
+    static DataLayerManager dlm = DataLayerManager.getInstance();
+    static final String VertragspartnerInputFields[] = {"Vorname", "Nachname", "Ausweisnummer", "Strasse", "Hausnummer", "PLZ", "Ort"};
+    static int idCounter = 0;
+    static boolean hasChanged = false; // Wenn ein benutzer etwas an einem Vertragspartner oder ware ändert (Nur für aussehen)
+    public static void main(String[] args) throws DaoException, IOException {
+        MainMenu(); // Hauptmenü aufrufen
+    }
 
-        int input = 0;
+
+    // Input eines Strings von der Konsole
+    private static String getInput() {
+        String input = "";
+        System.out.print("> ");
         try {
-            input = Integer.parseInt(reader.readLine());
-            if(input == 1) {
-                System.out.println("Einlesen");
-                System.out.println("---< Einlesen >---");
-                System.out.println("[1] XML");
-                System.out.println("[2] SQLite");
-                int input2 = Integer.parseInt(reader.readLine());
+            input = reader.readLine(); // Eingabe von der Konsole
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return input; // Return der Eingabe
+    }
 
-                if (input2 == 1) {
-                    dlm.getInstance().persistenceType = "xml";
-                    dl = dlm.getDataLayer();
-                    List<IVertragspartner> vp = dl.getVertragspartnerDao().read();
-                    List<IWare> w = dl.getWareDao().read();
-                    bearbeiten(vp, w);
 
-                } else if (input2 == 2) {
-                    dlm.getInstance().persistenceType = "sqlite";
-                    dl = dlm.getDataLayer();
+    private static void MainMenu() throws DaoException, IOException {
+        System.out.println("---< Kaufvertrag >---");
+        System.out.println("[1] Einlesen"); // Einlesen eines Kaufvertrags
+        System.out.println("[2] Neu erstellen"); // Erstellen eines neuen Kaufvertrags
+        System.out.println("[X] Beenden");
+        String input = getInput();
+        switch (input) {
+            case "1":
+                Einlesen(); // Einlesen eines Kaufvertrags
+                break;
+            case "2":
+                NeuErstellen(); // Erstellen eines neuen Kaufvertrags
+                break;
+            case "x":
+            case "X":
+                break;
+            default:
+                System.out.println("[Error] Incorrect input!"); // Fehlermeldung
+                MainMenu(); // Hauptmenü aufrufen
+                break;
+        }
+    }
 
-                } else {
-                    System.out.println("Persistence type not supported!");
+    private static void Einlesen() throws DaoException, IOException {
+        System.out.println("---< Kaufvertrag - Einlesen >---");
+        System.out.println("[1] XML"); // Einlesen eines Kaufvertrags aus XML
+        System.out.println("[2] SQLite"); // Einlesen eines Kaufvertrags aus SQLite
+        System.out.println("[0] Zurück"); // Zurück zum Hauptmenü
+        String input = getInput();
+        switch (input) {
+            case "1":
+                EinlesenXML(); // Einlesen eines Kaufvertrags aus XML
+                break;
+            case "2":
+                EinlesenSQLite(); // Einlesen eines Kaufvertrags aus SQLite
+                break;
+            case "0":
+                MainMenu(); // Zurück zum Hauptmenü
+                break;
+            default:
+                System.out.println("[Error] Incorrect input!"); // Fehlermeldung
+                Einlesen(); // Einlesen wiederholen
+                break;
+        }
+    }
+
+    // Einlesen eines Kaufvertrags aus XML
+    private static void EinlesenXML() throws DaoException, IOException {
+        dateiEinlesen("xml", true);
+        Bearbeiten();
+    }
+
+    // Einlesen eines Kaufvertrags aus SQLite
+    private static void EinlesenSQLite() throws DaoException, IOException {
+        dateiEinlesen("sqlite", true);
+        Bearbeiten();
+    }
+
+    private static void dateiEinlesen(String persistenceType, boolean verbose) throws DaoException, IOException {
+        if(verbose)
+            System.out.println("[Info] Read file...");
+        dlm.getInstance().persistenceType = persistenceType;
+        dl = dlm.getDataLayer();
+        List<IVertragspartner> vp = dl.getVertragspartnerDao().read(); // Einlesen aller Vertragspartner
+        List<IWare> w = dl.getWareDao().read(); // Einlesen der Waren
+        KaufvertragDaten.Vertragspartner = vp; // Vertragspartner speichern
+        KaufvertragDaten.Waren = w; // Waren speichern
+        if(verbose)
+            System.out.println("[Info] Finished reading!");
+    }
+
+    private static void Bearbeiten() throws DaoException, IOException {
+        System.out.println("---< Kaufvertrag - %s >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+        System.out.println("[1] Vertragspartner"); // Bearbeiten eines Vertragspartners
+        System.out.println("[2] Ware"); // Bearbeiten einer Ware
+        System.out.println("[0] Zurück");
+        String input = getInput();
+        switch (input) {
+            case "1":
+                VertragspartnerBearbeitenMenu(); // Bearbeiten eines Vertragspartners
+                break;
+            case "2":
+                WareBearbeitenMenu(); // Bearbeiten einer Ware
+                break;
+            case "0":
+                MainMenu(); // Zurück zum Hauptmenü
+                break;
+            default:
+                System.out.println("[Error] Incorrect input!"); // Fehlermeldung
+                Bearbeiten(); // Bearbeiten wiederholen
+                break;
+        }
+    }
+
+    private static void VertragspartnerBearbeitenMenu() throws DaoException, IOException {
+        dateiEinlesen(dlm.persistenceType, false);
+        System.out.println("---< Kaufvertrag - %s - Vertragspartner >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+        System.out.println("[1] Neu erstellen"); // Erstellen eines neuen Vertragspartners
+        System.out.println("[2] Bearbeiten"); // Bearbeiten eines Vertragspartners
+        System.out.println("[3] Löschen"); // Löschen eines Vertragspartners
+        System.out.println("[0] Zurück");
+        String input = getInput();
+        switch (input) {
+            case "1":
+                VertragspartnerNeuErstellen(); // Erstellen eines neuen Vertragspartners
+                break;
+            case "2":
+                VertragspartnerBearbeitenList(); // Bearbeiten eines Vertragspartners
+                break;
+            case "3":
+                VertragspartnerLoeschen(); // Löschen eines Vertragspartners
+                break;
+            case "0":
+                Bearbeiten(); // Zurück zum Hauptmenü
+                break;
+            default:
+                System.out.println("[Error] Incorrect input!"); // Fehlermeldung
+                VertragspartnerBearbeitenMenu(); // Bearbeiten wiederholen
+                break;
+        }
+    }
+
+    private static void VertragspartnerNeuErstellen() throws IOException, DaoException {
+        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Neu erstellen >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+        String[] inputfields = KaufvertragDaten.VertragspartnerInputfields; // Input felder zum erstellen eines Vertragspartners (Vorname, Nachname, AusweisNr, Strasse, ...)
+        List<String> input = getFastInput(inputfields);
+        // TODO: Modular machen. Nicht get (index) sondern von VertragspartnerInputfields getIndex "Vorname" -> newVp Vorname
+        IVertragspartner newVp = new Vertragspartner(input.get(0), input.get(1), input.get(2)); // Erstellen eines neuen Vertragspartners
+        IAdresse newA = new Adresse(input.get(3), input.get(4), input.get(5), input.get(6)); // Erstellen einer neuen Adresse
+        newVp.setAdresse(newA); // Adresse zum Vertragspartner hinzufügen
+        newVp.setId(idCounter);
+        idCounter++;
+        System.out.println(newVp.toString());
+        dl.getVertragspartnerDao().create(newVp); // Vertragspartner zum Kaufvertrag hinzufügen
+        VertragspartnerBearbeitenMenu();
+    }
+
+    private static List<String> getFastInput(String[] inputFields) {
+        List<String> input = new ArrayList<>(); // Liste für die Eingabe
+        for(int counter = 0; counter < inputFields.length; counter++) {
+            System.out.print("(%d/%d) ".formatted(counter+1, inputFields.length) + inputFields[counter] + " "); // Ausgabe der Eingabefelder
+            input.add(getInput()); // Einlesen und speichern der Eingaben
+        }
+        return input; // Liste mit Eingaben zurückgeben
+    }
+
+    private static void VertragspartnerBearbeitenList() throws DaoException, IOException {
+        hasChanged = false;
+        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Bearbeiten >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+
+        for(int i = 0; i < KaufvertragDaten.Vertragspartner.size(); i++) {
+            IVertragspartner vp = KaufvertragDaten.Vertragspartner.get(i); // Vertragspartner aus Liste holen
+            IAdresse a = vp.getAdresse(); // Adresse des Vertragspartners aus Liste holen
+            System.out.println("[%d] %s".formatted((i+1), vp.getVorname() + ", " + vp.getNachname() + ", " + vp.getAusweisNr() + ", " + a.getStrasse())); // Ausgabe der Vertragspartner
+        }
+        System.out.println("[0] Zurück");
+        String input = getInput();
+        switch (input) {
+            case "1":
+            case "2":
+                VertragspartnerBearbeiten(KaufvertragDaten.Vertragspartner.get(Integer.parseInt(input)-1));
+                break;
+            case "0":
+                VertragspartnerBearbeitenMenu(); // Zurück zum Hauptmenü
+                break;
+            default:
+                System.out.println("[Error] Incorrect input!"); // Fehlermeldung
+                VertragspartnerBearbeitenList(); // Bearbeiten wiederholen
+                break;
+        }
+    }
+
+    
+
+    private static void VertragspartnerBearbeiten(IVertragspartner vp) throws DaoException, IOException {
+        IAdresse a = vp.getAdresse();
+        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Bearbeiten - %s, $s >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT), vp.getVorname(), vp.getNachname()));
+
+        String[] inputfields = KaufvertragDaten.VertragspartnerInputfields;
+        String[] vpData = {vp.getVorname(), vp.getNachname(), vp.getAusweisNr(), a.getStrasse(), a.getHausNr(), a.getPlz(), a.getOrt()};
+        for(int counter = 0; counter < inputfields.length; counter++){
+            System.out.println("[%d] %s (%s)".formatted((counter+1), inputfields[counter], vpData[counter]));
+        }
+        System.out.print("[0] Zurück");
+        if(hasChanged) {
+            System.out.print(" / Save");
+        }
+        System.out.println();
+
+        String input = getInput();
+        switch (input) {
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+                hasChanged = true;
+                int numberInput = Integer.parseInt(input);
+                System.out.print("%s (%s): ".formatted(inputfields[numberInput-1], vpData[numberInput-1]));
+                String updatedInput = getInput();
+                switch (inputfields[numberInput-1]){
+                    case "Vorname": vp.setVorname(updatedInput); break;
+                    case "Nachname": vp.setNachname(updatedInput); break;
+                    case "Ausweisnummer": vp.setAusweisNr(updatedInput); break;
+                    case "Strasse": vp.getAdresse().setStrasse(updatedInput); break;
+                    case "Hausnummer": vp.getAdresse().setHausNr(updatedInput); break;
+                    case "PLZ": vp.getAdresse().setPlz(updatedInput); break;
+                    case "Ort": vp.getAdresse().setOrt(updatedInput); break;
                 }
-                if(dl != null){
-
-                }
-            } else if(input == 2) {
-                System.out.println("Neu erstellen");
-                System.out.println("---< Neu erstellen >---");
-
-            } else {
-                System.out.println("Input incorrect!");
-            }
-        } catch (NumberFormatException | DaoException | IOException e) {
-            System.out.println("Invalid input");
-        }
-    }
-
-    private static void options(){
-        System.out.println("[1] Bearbeiten");
-        System.out.println("[2] Neu erstellen");
-        System.out.println("[3] Löschen");
-    }
-
-    private static void bearbeiten(List<IVertragspartner> vp, List<IWare> w) throws IOException {
-        System.out.println("---< Bearbeiten >---");
-        System.out.println("[1] Vertragspartner");
-        System.out.println("[2] Ware");
-        int input3 = Integer.parseInt(reader.readLine());
-        if (input3 == 1) {
-            Vertragspartner(vp, w);
-        }else if (input3 == 2) {
-            System.out.println("---< Ware >---");
-            options(); // Prints options for bearbeiten ware
-            int input4 = Integer.parseInt(reader.readLine());
-            if (input4 == 1) {
-                System.out.println("---< Ware - Bearbeiten >---");
-                System.out.println("[1] Bezeichnung");
-                System.out.println("[2] Beschreibung");
-                System.out.println("[3] Preis");
-                System.out.println("[4] Besonderheiten");
-                System.out.println("[4] Mängel");
-
-            }
-        }
-    }
-
-    private static void Vertragspartner(List<IVertragspartner> vp, List<IWare> w) throws IOException {
-        System.out.println("---< Vertragspartner >---");
-        options(); // Prints options for bearbeiten ware
-        int input4 = Integer.parseInt(reader.readLine());
-        if (input4 == 1) {
-            VertragspartnerBearbeiten(vp, w);
-        }else if(input4 == 2) {
-            Vertragspartner vertragspartner = new Vertragspartner("", "");
-            Adresse adresse = new Adresse("", "", "", "");
-            VertragspartnerNeuErstellen(vp, w, vertragspartner, adresse);
-        } else if(input4 == 3) {
-            System.out.println("---< Vertragspartner - Löschen >---");
-        }else {
-            System.out.println("Input incorrect!");
-            Vertragspartner(vp, w);
-        }
-    }
-
-    private static void VertragspartnerOptions(){
-        System.out.println("[1] Vorname");
-        System.out.println("[2] Nachname");
-        System.out.println("[3] Ausweisnummer");
-        System.out.println("-- Adresse --");
-        System.out.println("[4] Strasse");
-        System.out.println("[5] Hausnummer");
-        System.out.println("[6] PLZ");
-        System.out.println("[7] Ort");
-        System.out.println("\n[0] Save");
-    }
-
-    private static void VertragspartnerNeuErstellen(List<IVertragspartner> vp, List<IWare> w, Vertragspartner vertragspartner, Adresse adresse) throws IOException {
-        System.out.println("---< Vertragspartner - Neu erstellen >---");
-        VertragspartnerOptions();
-        int input5 = Integer.parseInt(reader.readLine());
-        if (input5 == 1) {
-            System.out.println("Vorname: ");
-            String vorname = reader.readLine();
-            vertragspartner.setVorname(vorname);
-        } else if (input5 == 2) {
-            System.out.println("Nachname: ");
-            String nachname = reader.readLine();
-            vertragspartner.setNachname(nachname);
-        } else if (input5 == 3) {
-            System.out.println("Ausweisnummer: ");
-            String ausweisnummer = reader.readLine();
-            vertragspartner.setAusweisNr(ausweisnummer);
-        } else if (input5 == 4) {
-            System.out.println("Strasse: ");
-            String strasse = reader.readLine();
-            adresse.setStrasse(strasse);
-        } else if (input5 == 5) {
-            System.out.println("Hausnummer: ");
-            String hausnummer = reader.readLine();
-            adresse.setHausNr(hausnummer);
-        } else if (input5 == 6) {
-            System.out.println("PLZ: ");
-            String plz = reader.readLine();
-            adresse.setPlz(plz);
-        } else if (input5 == 7) {
-            System.out.println("Ort: ");
-            String ort = reader.readLine();
-            adresse.setOrt(ort);
-        } else if(input5 == 0){
-            vertragspartner.setAdresse(adresse);
-            dl.getVertragspartnerDao().create(vertragspartner);
-            System.out.println("Vertragspartner erstellt:");
-            System.out.println(vertragspartner.toString());
-            Vertragspartner(vp, w);
-        } else {
-            System.out.println("Input incorrect!");
-        }
-        VertragspartnerNeuErstellen(vp, w, vertragspartner, adresse);
-    }
-
-    private static void VertragspartnerBearbeiten(List<IVertragspartner> vp, List<IWare> w) throws IOException {
-        System.out.println("---< Vertragspartner - Bearbeiten >---");
-        if(vp.size() == 0){
-            System.out.println("Keine Vertragspartner vorhanden");
-            Vertragspartner(vp, w);
-        }else if(vp.size() >= 1) {
-            for (int i = 0; i < vp.size(); i++) {
-                System.out.println("[" + (i + 1) + "] " + vp.get(i).getNachname() + ", " + vp.get(i).getVorname());
-            }
+                VertragspartnerBearbeiten(vp);
+                break;
+            case "0":
+                dl.getVertragspartnerDao().update(vp);
+                VertragspartnerBearbeitenList(); // Zurück zum Hauptmenü
+                break;
+            default:
+                System.out.println("Incorrect input!"); // Fehlermeldung
+                VertragspartnerBearbeiten(vp); // Bearbeiten wiederholen
+                break;
         }
 
-        int input5 = Integer.parseInt(reader.readLine());
-        if(input5 == 1){
-            VertragspartnerBearbeiten1(vp.get(0), w);
-        } else if(input5 == 2){
-            VertragspartnerBearbeiten1(vp.get(1), w);
-        } else {
-            System.out.println("Input incorrect!");
-            VertragspartnerBearbeiten(vp, w);
-        }
     }
 
-    private static void VertragspartnerBearbeiten1(IVertragspartner vp, List<IWare> w) throws IOException {
-        System.out.println("---< Vertragspartner - Bearbeiten - " + vp.getNachname() + ", " + vp.getVorname() + " >---");
+    private static void VertragspartnerLoeschen() {
 
-        VertragspartnerOptions();
+    }
 
-        int input6 = Integer.parseInt(reader.readLine());
-        if(input6 == 1){
-            System.out.println("Neuer Vorname (" + vp.getVorname() + "): ");
-            String vorname = reader.readLine();
-            vp.setVorname(vorname);
-        } else if(input6 == 2){
-            System.out.println("Neuer Nachname (" + vp.getNachname() + "): ");
-            String nachname = reader.readLine();
-            vp.setNachname(nachname);
-        } else if(input6 == 3){
-            System.out.println("Neue Ausweisnummer (" + vp.getAusweisNr() + "): ");
-            String ausweisnummer = reader.readLine();
-            vp.setAusweisNr(ausweisnummer);
-        } else if(input6 == 4){
-            System.out.println("Neue Strasse (" + vp.getAdresse().getStrasse() + "): ");
-            String strasse = reader.readLine();
-            vp.getAdresse().setStrasse(strasse);
-        } else if(input6 == 5){
-            System.out.println("Neue Hausnummer (" + vp.getAdresse().getHausNr() + "): ");
-            String hausnummer = reader.readLine();
-            vp.getAdresse().setHausNr(hausnummer);
-        } else if(input6 == 6){
-            System.out.println("Neue PLZ (" + vp.getAdresse().getPlz() + "): ");
-            String plz = reader.readLine();
-            vp.getAdresse().setPlz(plz);
-        } else if(input6 == 7){
-            System.out.println("Neuer Ort (" + vp.getAdresse().getOrt() + "): ");
-            String ort = reader.readLine();
-            vp.getAdresse().setOrt(ort);
-        } else {
-            System.out.println("Invalid input");
-        }
-        VertragspartnerBearbeiten1(vp, w);
+
+    private static void WareBearbeitenMenu() {
+    }
+
+    private static void NeuErstellen() {
+        System.out.println("---< Kaufvertrag - Neu erstellen >---");
+        System.out.println("[1] XML"); // Erstellen eines neuen Kaufvertrags mit XML
+        System.out.println("[2] SQLite"); // Erstellen eines neuen Kaufvertrags mit SQLite
+        System.out.println("[0] Zurück"); // Zurück zum Hauptmenü
+
     }
 
 }

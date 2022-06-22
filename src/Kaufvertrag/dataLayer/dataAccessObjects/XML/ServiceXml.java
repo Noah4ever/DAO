@@ -9,12 +9,14 @@ import Kaufvertrag.dataLayer.businessObjects.Ware;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
+import org.jdom2.input.JDOMParseException;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.SAXOutputter;
 import org.jdom2.output.XMLOutputter;
 
 import java.io.*;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +34,11 @@ public class ServiceXml {
 
         File file = new File(xmlFile);
         if(!file.exists()){
+            System.out.println("[Info] No file found!");
             try {
-                file.createNewFile();
+                createNewFile(pathname);
                 SAXBuilder builder = new SAXBuilder();
-                document = (Document) builder.build(new StringReader("<Kaufvertrag></Kaufvertrag>"));
+                document = (Document) builder.build(new StringReader("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Kaufvertrag></Kaufvertrag>"));
                 root = document.getRootElement();
                 FileOutputStream fos = new FileOutputStream(pathname);
                 XMLOutputter xmlOutput = new XMLOutputter(Format.getPrettyFormat());
@@ -45,11 +48,22 @@ public class ServiceXml {
                 e.printStackTrace();
             }
         } else {
-            // Read file
+            // File exists
             try {
-                SAXBuilder builder = new SAXBuilder();
-                document = (Document) builder.build(new File(xmlFile));
-                root = document.getRootElement();
+                if(isValidXML(xmlFile)){ // Check if pathname is valid xml file
+                    SAXBuilder builder = new SAXBuilder();
+                    document = (Document) builder.build(new File(xmlFile)); // Read file
+                    root = document.getRootElement(); // Get root element
+                }else{
+                    System.out.println("[Error] Not a valid XML file at: '%s' \n[Info] Deleting the file...".formatted(xmlFile));
+                    if(file.delete()){
+                        System.out.println("[Info] File successfully deleted!");
+                        createNewFile(pathname);
+                    }else{
+                        System.out.println("[Error] File could not be deleted! Please delete the file at: '%s'".formatted(xmlFile));
+                    }
+
+                }
             } catch (JDOMException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -58,23 +72,50 @@ public class ServiceXml {
         }
     }
 
+    private void createNewFile(String pathname) throws IOException, JDOMException {
+        System.out.println("[Info] Creating new file at: '%s'".formatted(pathname));
+        new File(pathname).createNewFile();
+        SAXBuilder builder = new SAXBuilder();
+        document = (Document) builder.build(new StringReader("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Kaufvertrag></Kaufvertrag>"));
+        root = document.getRootElement();
+        FileOutputStream fos = new FileOutputStream(pathname);
+        XMLOutputter xmlOutput = new XMLOutputter(Format.getPrettyFormat());
+        xmlOutput.output(document, fos);
+        System.out.println("[Info] File successfully created!");
+    }
+
+    private boolean isValidXML(String pathname){ // Check if given XML path is a valid XML file
+        SAXBuilder builder = new SAXBuilder();
+        try{
+            Document doc = builder.build(new File(pathname));
+        } catch (JDOMException | IOException e) {
+            return false;
+        }
+        return true;
+    }
+
     public void updateVertragspartner(IVertragspartner vertragspartner) throws IOException {
         FileOutputStream fos = new FileOutputStream(pathname);
-        List<Element> vertragspartnerList = root.getChildren("Vertragspartner"); // get the list of vertragspartner
-        for(Element v : vertragspartnerList) { // iterate through the list
-            if (v.getAttributeValue("id").equals(String.valueOf(vertragspartner.getId()))) { // if the id is the same as the id of the vertragspartner
-                v.setAttribute("id", String.valueOf(vertragspartner.getId()));
-                v.setAttribute("vorname", vertragspartner.getVorname());
-                v.setAttribute("nachname", vertragspartner.getNachname());
 
+        List<Element> vertragspartnerList = root.getChildren("Vertragspartner"); // get the list of vertragspartner
+
+        for(Element v : vertragspartnerList) { // iterate through the list
+            if (v.getChildText("id").equals(String.valueOf(vertragspartner.getId()))) { // if the id is the same as the id of the vertragspartner
+                v.getChild("id").setText(String.valueOf(vertragspartner.getId()));
+                v.getChild("vorname").setText(vertragspartner.getVorname());
+                v.getChild("nachname").setText(vertragspartner.getNachname());
+                v.getChild("ausweisNr").setText(vertragspartner.getAusweisNr());
                 Element adresse = v.getChild("Adresse"); // get the adresse element
-                adresse.setAttribute("strasse", vertragspartner.getAdresse().getStrasse());
-                adresse.setAttribute("hausNr", String.valueOf(vertragspartner.getAdresse().getHausNr()));
-                adresse.setAttribute("plz", String.valueOf(vertragspartner.getAdresse().getPlz()));
-                adresse.setAttribute("ort", vertragspartner.getAdresse().getOrt());
+                if(adresse != null) {
+                    adresse.getChild("strasse").setText(vertragspartner.getAdresse().getStrasse());
+                    adresse.getChild("hausNr").setText(String.valueOf(vertragspartner.getAdresse().getHausNr()));
+                    adresse.getChild("plz").setText(String.valueOf(vertragspartner.getAdresse().getPlz()));
+                    adresse.getChild("ort").setText(vertragspartner.getAdresse().getOrt());
+                }else{
+                    System.out.println("[DEBUG] adresse is null!");
+                }
             }
         }
-
         XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
         xmlOutputter.output(document, fos);
         fos.close();
@@ -232,7 +273,7 @@ public class ServiceXml {
             String id = vertragspartner.getChildText("id");
             String vorname = vertragspartner.getChildText("vorname");
             String nachname = vertragspartner.getChildText("nachname");
-            String ausweisnummer = vertragspartner.getChildText("ausweisnummer");
+            String ausweisnummer = vertragspartner.getChildText("ausweisNr");
             Element adresseElement = vertragspartner.getChildren("Adresse").get(0);
             IAdresse adresse;
             if(adresseElement != null){ // if the element is not null

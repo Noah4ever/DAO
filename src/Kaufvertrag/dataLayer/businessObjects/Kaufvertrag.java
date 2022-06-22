@@ -4,6 +4,8 @@ import Kaufvertrag.businessObjects.IKaufvertrag;
 import Kaufvertrag.businessObjects.IVertragspartner;
 import Kaufvertrag.businessObjects.IWare;
 
+import java.util.List;
+
 public class Kaufvertrag implements IKaufvertrag {
 
     private IVertragspartner verkaeufer;

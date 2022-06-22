@@ -4,6 +4,7 @@ import Kaufvertrag.businessObjects.IAdresse;
 import Kaufvertrag.businessObjects.IVertragspartner;
 
 public class Vertragspartner implements IVertragspartner {
+    private int id;
     private String vorname;
     private String nachname;
     private String ausweisNr;
@@ -13,11 +14,21 @@ public class Vertragspartner implements IVertragspartner {
         this.vorname = vorname;
         this.nachname = nachname;
     }
+    public Vertragspartner(String vorname, String nachname, String ausweisNr) {
+        this.vorname = vorname;
+        this.nachname = nachname;
+        this.ausweisNr = ausweisNr;
+    }
 
 
     @Override
     public int getId() {
-        return 0;
+        return id;
+    }
+
+    @Override
+    public void setId(int id){
+        this.id = id;
     }
 
     @Override
@@ -61,6 +72,6 @@ public class Vertragspartner implements IVertragspartner {
     }
 
     public String toString() {
-        return vorname + " " + nachname + "\n" + adresse.toString();
+        return "Vertragspartner{vorname='%s', nachname='%s', ausweisNr='%s', \n".formatted(vorname, nachname, ausweisNr) + adresse.toString() + "}";
     }
 }

@@ -4,6 +4,7 @@ import Kaufvertrag.dataLayer.businessObjects.Adresse;
 
 public interface IVertragspartner {
     public int getId();
+    public void setId(int id);
     public String getVorname();
     public void setVorname(String vorname);
     public void setNachname(String nachname);
