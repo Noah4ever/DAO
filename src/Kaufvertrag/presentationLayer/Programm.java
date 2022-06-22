@@ -205,7 +205,7 @@ public class Programm {
         for(int i = 0; i < KaufvertragDaten.Vertragspartner.size(); i++) {
             IVertragspartner vp = KaufvertragDaten.Vertragspartner.get(i); // Vertragspartner aus Liste holen
             IAdresse a = vp.getAdresse(); // Adresse des Vertragspartners aus Liste holen
-            System.out.println("[%d] %s".formatted((i+1), vp.getVorname() + ", " + vp.getNachname() + ", " + vp.getAusweisNr() + ", " + a.getStrasse())); // Ausgabe der Vertragspartner
+            System.out.println("[%d] %s, %s, %s, %s, %s, %s, %s".formatted(i+1, vp.getVorname(), vp.getNachname(), vp.getAusweisNr(), a.getStrasse(), a.getHausNr(), a.getPlz(), a.getOrt())); // Ausgabe der Vertragspartner
         }
         System.out.println("[0] Zurück");
         String input = getInput();
@@ -228,8 +228,9 @@ public class Programm {
 
     private static void VertragspartnerBearbeiten(IVertragspartner vp) throws DaoException, IOException {
         IAdresse a = vp.getAdresse();
-        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Bearbeiten - %s, $s >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT), vp.getVorname(), vp.getNachname()));
-
+        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Bearbeiten - %s, %s >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT), vp.getVorname(), vp.getNachname()));
+        System.out.println("VP: " + vp.toString());
+        System.out.println("ID: " + vp.getId());
         String[] inputfields = KaufvertragDaten.VertragspartnerInputfields;
         String[] vpData = {vp.getVorname(), vp.getNachname(), vp.getAusweisNr(), a.getStrasse(), a.getHausNr(), a.getPlz(), a.getOrt()};
         for(int counter = 0; counter < inputfields.length; counter++){
@@ -266,6 +267,8 @@ public class Programm {
                 VertragspartnerBearbeiten(vp);
                 break;
             case "0":
+                System.out.println("VP: " + vp.toString());
+                System.out.println("ID: " + vp.getId());
                 dl.getVertragspartnerDao().update(vp);
                 VertragspartnerBearbeitenList(); // Zurück zum Hauptmenü
                 break;

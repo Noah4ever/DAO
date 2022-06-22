@@ -4,12 +4,24 @@
     <id>0</id>
     <vorname>Noah</vorname>
     <nachname>Thiering</nachname>
-    <ausweisNr>1337</ausweisNr>
+    <ausweisNr>12365121</ausweisNr>
     <Adresse>
-      <strasse>Am Friedeholz</strasse>
-      <hausNr>10</hausNr>
-      <plz>28857</plz>
+      <strasse>as</strasse>
+      <hausNr>d</hausNr>
+      <plz>s</plz>
       <ort>Syke</ort>
+    </Adresse>
+  </Vertragspartner>
+  <Vertragspartner>
+    <id>1</id>
+    <vorname>Julius</vorname>
+    <nachname>Ewert</nachname>
+    <ausweisNr>123512</ausweisNr>
+    <Adresse>
+      <strasse>asd</strasse>
+      <hausNr>sa</hausNr>
+      <plz>s</plz>
+      <ort>Bremen</ort>
     </Adresse>
   </Vertragspartner>
 </Kaufvertrag>

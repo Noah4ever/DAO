@@ -37,13 +37,6 @@ public class ServiceXml {
             System.out.println("[Info] No file found!");
             try {
                 createNewFile(pathname);
-                SAXBuilder builder = new SAXBuilder();
-                document = (Document) builder.build(new StringReader("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Kaufvertrag></Kaufvertrag>"));
-                root = document.getRootElement();
-                FileOutputStream fos = new FileOutputStream(pathname);
-                XMLOutputter xmlOutput = new XMLOutputter(Format.getPrettyFormat());
-                xmlOutput.output(document, fos);
-
             } catch (IOException | JDOMException e) {
                 e.printStackTrace();
             }
@@ -100,6 +93,7 @@ public class ServiceXml {
         List<Element> vertragspartnerList = root.getChildren("Vertragspartner"); // get the list of vertragspartner
 
         for(Element v : vertragspartnerList) { // iterate through the list
+            System.out.println("%s == %s = %b (%s)".formatted(v.getChildText("id"), vertragspartner.getId(), v.getChildText("id").equals(String.valueOf(vertragspartner.getId())), v.getChildText("vorname")));
             if (v.getChildText("id").equals(String.valueOf(vertragspartner.getId()))) { // if the id is the same as the id of the vertragspartner
                 v.getChild("id").setText(String.valueOf(vertragspartner.getId()));
                 v.getChild("vorname").setText(vertragspartner.getVorname());
@@ -288,8 +282,9 @@ public class ServiceXml {
             IVertragspartner vertragspartner1 = new Vertragspartner(vorname, nachname); // create a new Vertragspartner object
             vertragspartner1.setAdresse(adresse); // set the adresse of the Vertragspartner object
             vertragspartner1.setAusweisNr(ausweisnummer); // set the ausweisnummer of the Vertragspartner object
-            vertragspartnerList.add(vertragspartner1); // add the Vertragspartner object to the list
+            vertragspartner1.setId(Integer.parseInt(id)); // set the id of the Vertragspartner object
 
+            vertragspartnerList.add(vertragspartner1); // add the Vertragspartner object to the list
         }
         return vertragspartnerList; // return the list
     }

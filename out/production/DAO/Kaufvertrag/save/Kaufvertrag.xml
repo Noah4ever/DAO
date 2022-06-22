@@ -2,14 +2,26 @@
 <Kaufvertrag>
   <Vertragspartner>
     <id>0</id>
-    <vorname>Noah</vorname>
-    <nachname>Thiering</nachname>
-    <ausweisNr>23151</ausweisNr>
+    <vorname>NOah</vorname>
+    <nachname>thiering</nachname>
+    <ausweisNr>asd</ausweisNr>
     <Adresse>
-      <strasse>Am Friedeholz</strasse>
-      <hausNr>10</hausNr>
-      <plz>28857</plz>
-      <ort>Syke</ort>
+      <strasse>as</strasse>
+      <hausNr>d</hausNr>
+      <plz>s</plz>
+      <ort>s</ort>
+    </Adresse>
+  </Vertragspartner>
+  <Vertragspartner>
+    <id>1</id>
+    <vorname>julius</vorname>
+    <nachname>ewert</nachname>
+    <ausweisNr>asd</ausweisNr>
+    <Adresse>
+      <strasse>asd</strasse>
+      <hausNr>sa</hausNr>
+      <plz>s</plz>
+      <ort>a</ort>
     </Adresse>
   </Vertragspartner>
 </Kaufvertrag>
