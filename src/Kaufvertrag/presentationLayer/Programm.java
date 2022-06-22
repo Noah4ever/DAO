@@ -33,7 +33,6 @@ public class Programm {
     static BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(System.in));
     static IDataLayer dl = null;
     static DataLayerManager dlm = DataLayerManager.getInstance();
-    static final String VertragspartnerInputFields[] = {"Vorname", "Nachname", "Ausweisnummer", "Strasse", "Hausnummer", "PLZ", "Ort"};
     static int idCounter = 0;
     static boolean hasChanged = false; // Wenn ein benutzer etwas an einem Vertragspartner oder ware ändert (Nur für aussehen)
     public static void main(String[] args) throws DaoException, IOException {
@@ -56,16 +55,12 @@ public class Programm {
 
     private static void MainMenu() throws DaoException, IOException {
         System.out.println("---< Kaufvertrag >---");
-        System.out.println("[1] Einlesen"); // Einlesen eines Kaufvertrags
-        System.out.println("[2] Neu erstellen"); // Erstellen eines neuen Kaufvertrags
+        System.out.println("[1] Neu Erstellen / Einlesen"); // Einlesen eines Kaufvertrags
         System.out.println("[X] Beenden");
         String input = getInput();
         switch (input) {
             case "1":
                 Einlesen(); // Einlesen eines Kaufvertrags
-                break;
-            case "2":
-                NeuErstellen(); // Erstellen eines neuen Kaufvertrags
                 break;
             case "x":
             case "X":
@@ -129,6 +124,7 @@ public class Programm {
         System.out.println("---< Kaufvertrag - %s >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
         System.out.println("[1] Vertragspartner"); // Bearbeiten eines Vertragspartners
         System.out.println("[2] Ware"); // Bearbeiten einer Ware
+        System.out.println("[3] Ausgabe"); // Ausgabe des Kaufvertrags
         System.out.println("[0] Zurück");
         String input = getInput();
         switch (input) {
@@ -138,6 +134,9 @@ public class Programm {
             case "2":
                 WareBearbeitenMenu(); // Bearbeiten einer Ware
                 break;
+            case "3":
+                Ausgabe(); // Ausgabe des Kaufvertrags
+                break;
             case "0":
                 MainMenu(); // Zurück zum Hauptmenü
                 break;
@@ -146,6 +145,13 @@ public class Programm {
                 Bearbeiten(); // Bearbeiten wiederholen
                 break;
         }
+    }
+
+    private static void Ausgabe() {
+        System.out.println("---< Kaufvertrag - %s - Ausgabe >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+        System.out.println("\n\n\n");
+        // TODO: Schöne Ausgabe hier (Schöne Tabelle mit | _ - und sowas, wie bei excel)
+        System.out.println("Krass schöne Ausgabe hier!");
     }
 
     private static void VertragspartnerBearbeitenMenu() throws DaoException, IOException {
@@ -432,14 +438,6 @@ public class Programm {
             return false;
         }
         return true;
-    }
-
-    private static void NeuErstellen() {
-        System.out.println("---< Kaufvertrag - Neu erstellen >---");
-        System.out.println("[1] XML"); // Erstellen eines neuen Kaufvertrags mit XML
-        System.out.println("[2] SQLite"); // Erstellen eines neuen Kaufvertrags mit SQLite
-        System.out.println("[0] Zurück"); // Zurück zum Hauptmenü
-
     }
 
 }

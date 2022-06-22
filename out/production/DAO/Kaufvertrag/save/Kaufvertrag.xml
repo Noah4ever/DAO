@@ -1,11 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Kaufvertrag>
-  <Ware>
-    <id>0</id>
-    <bezeichnung>Stock</bezeichnung>
-    <preis>1.99</preis>
-    <beschreibung>Ein Stock!</beschreibung>
-    <besonderheiten>Hart,Lang,Holzig</besonderheiten>
-    <maengel>Trocken,Morschig</maengel>
-  </Ware>
-</Kaufvertrag>
+<Kaufvertrag />
