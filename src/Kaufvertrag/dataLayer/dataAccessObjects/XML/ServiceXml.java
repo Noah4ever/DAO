@@ -212,8 +212,15 @@ public class ServiceXml {
 
     public void deleteVertragspartner(int id) throws IOException {
         FileOutputStream fos = new FileOutputStream(pathname);
-        Element vertragspartnerElement = root.getChild("Vertragspartner");
-        vertragspartnerElement.removeContent();
+
+        List<Element> vertragspartnerElements = root.getChildren("Vertragspartner"); // get all Vertragspartner Elements
+        for(Element vertragspartnerElement : vertragspartnerElements) { // iterate over all Vertragspartner Elements
+            if(vertragspartnerElement.getChildText("id").equals(String.valueOf(id))) { // if id is found
+                vertragspartnerElement.removeContent(); // remove Vertragspartner Element
+                vertragspartnerElement.detach(); // detach Vertragspartner Element
+            }
+        }
+
         XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
         xmlOutputter.output(document, fos);
         fos.close();
@@ -268,7 +275,7 @@ public class ServiceXml {
             String vorname = vertragspartner.getChildText("vorname");
             String nachname = vertragspartner.getChildText("nachname");
             String ausweisnummer = vertragspartner.getChildText("ausweisNr");
-            Element adresseElement = vertragspartner.getChildren("Adresse").get(0);
+            Element adresseElement = vertragspartner.getChild("Adresse");
             IAdresse adresse;
             if(adresseElement != null){ // if the element is not null
                 String strasse = adresseElement.getChildText("strasse");

@@ -1,27 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
+?xml version="1.0" encoding="UTF-8"?>
 <Kaufvertrag>
   <Vertragspartner>
     <id>0</id>
-    <vorname>NOah</vorname>
-    <nachname>thiering</nachname>
-    <ausweisNr>asd</ausweisNr>
+    <vorname>Noah</vorname>
+    <nachname>Thiering</nachname>
+    <ausweisNr>12365121</ausweisNr>
     <Adresse>
       <strasse>as</strasse>
       <hausNr>d</hausNr>
       <plz>s</plz>
-      <ort>s</ort>
+      <ort>Syke</ort>
     </Adresse>
   </Vertragspartner>
-  <Vertragspartner>
-    <id>1</id>
-    <vorname>julius</vorname>
-    <nachname>ewert</nachname>
-    <ausweisNr>asd</ausweisNr>
-    <Adresse>
-      <strasse>asd</strasse>
-      <hausNr>sa</hausNr>
-      <plz>s</plz>
-      <ort>a</ort>
-    </Adresse>
-  </Vertragspartner>
+  <Vertragspartner />
 </Kaufvertrag>
