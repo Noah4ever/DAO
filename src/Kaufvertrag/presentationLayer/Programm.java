@@ -6,6 +6,7 @@ import Kaufvertrag.businessObjects.IWare;
 import Kaufvertrag.dataLayer.businessObjects.Adresse;
 import Kaufvertrag.dataLayer.businessObjects.Kaufvertrag;
 import Kaufvertrag.dataLayer.businessObjects.Vertragspartner;
+import Kaufvertrag.dataLayer.businessObjects.Ware;
 import Kaufvertrag.dataLayer.dataAccessObjects.DataLayerManager;
 import Kaufvertrag.dataLayer.dataAccessObjects.IDataLayer;
 import Kaufvertrag.dataLayer.dataAccessObjects.XML.DataLayerXml;
@@ -15,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,7 +25,7 @@ class KaufvertragDaten {
     public static final String VertragspartnerInputfields[] = {"Vorname", "Nachname", "Ausweisnummer", "Strasse", "Hausnummer", "PLZ", "Ort"};
 
     public static List<IWare> Waren;
-    public static final String WareInputfields[] = {"Bezeichnung", "Beschreibung", "Preis", "Besonderheiten", "Mängel"};
+    public static final String WareInputfields[] = {"Bezeichnung", "Preis (Euro)", "Beschreibung", "Besonderheiten (Komma getrennte Aufzählung)", "Mängel (Komma getrennte Aufzählung)"};
 
 }
 
@@ -171,18 +173,23 @@ public class Programm {
     }
 
     private static void VertragspartnerNeuErstellen() throws IOException, DaoException {
-        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Neu erstellen >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Neu erstellen >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT))); // Heading
+
         String[] inputfields = KaufvertragDaten.VertragspartnerInputfields; // Input felder zum erstellen eines Vertragspartners (Vorname, Nachname, AusweisNr, Strasse, ...)
-        List<String> input = getFastInput(inputfields);
-        // TODO: Modular machen. Nicht get (index) sondern von VertragspartnerInputfields getIndex "Vorname" -> newVp Vorname
+        List<String> input = getFastInput(inputfields); // Eingabe der Inputfelder List = [Vorname, Nachname, AusweisNr, Strasse, ...]
+
+        // TODO: Modular machen. Nicht .get(index) sondern von VertragspartnerInputfields getIndex "Vorname" -> newVp Vorname
+        // 0 = Vorname, 1 = Nachname, 2 = AusweisNr --- 3 = Strasse, 4 = Hausnummer, 5 = PLZ, 6 = Ort
         IVertragspartner newVp = new Vertragspartner(input.get(0), input.get(1), input.get(2)); // Erstellen eines neuen Vertragspartners
         IAdresse newA = new Adresse(input.get(3), input.get(4), input.get(5), input.get(6)); // Erstellen einer neuen Adresse
+
         newVp.setAdresse(newA); // Adresse zum Vertragspartner hinzufügen
+
         newVp.setId(idCounter); // Set id to new id counter (So that it is unique)
         idCounter++; // Increment id counter
-        System.out.println(newVp.toString());
+
         dl.getVertragspartnerDao().create(newVp); // Vertragspartner zum Kaufvertrag hinzufügen
-        VertragspartnerBearbeitenMenu();
+        VertragspartnerBearbeitenMenu(); // Zurück zum Vertragspartner-Bearbeiten-Menü
     }
 
     private static List<String> getFastInput(String[] inputFields) {
@@ -277,7 +284,154 @@ public class Programm {
 
     }
 
-    private static void WareBearbeitenMenu() {
+    private static void WareBearbeitenMenu() throws IOException, DaoException {
+        dateiEinlesen(dlm.persistenceType, false); // Einlesen der Daten
+        System.out.println("---< Kaufvertrag - %s - Ware >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+        System.out.println("[1] Neue erstellen");
+        System.out.println("[2] Bearbeiten");
+        System.out.println("[0] Zurück");
+        String input = getInput();
+        switch (input) {
+            case "1":
+                WareNeuErstellen();
+                break;
+            case "2":
+                WareBearbeitenList();
+                break;
+            case "0":
+                Bearbeiten();
+                break;
+            default:
+                System.out.println("Incorrect input!"); // Fehlermeldung
+                WareBearbeitenMenu(); // Bearbeiten wiederholen
+                break;
+        }
+    }
+
+    private static void WareBearbeitenList() throws IOException, DaoException {
+        dateiEinlesen(dlm.persistenceType, false); // Einlesen der Daten
+        hasChanged = false;
+        System.out.println("---< Kaufvertrag - %s - Ware - Bearbeiten >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+        for(int i = 0; i < KaufvertragDaten.Waren.size(); i++) {
+            IWare w = KaufvertragDaten.Waren.get(i); // Ware aus Liste holen
+            System.out.println("[%d] %s, %s, %s, %s, %s".formatted(i + 1, w.getBezeichnung(), w.getPreis(), w.getBeschreibung(), w.getBesonderheiten(), w.getMaengel())); // Ausgabe der Waren
+        }
+        System.out.println("[0] Zurück");
+        String input = getInput();
+        switch (input) {
+            case "1":
+                WareBearbeiten(KaufvertragDaten.Waren.get(Integer.parseInt(input)-1));
+                break;
+            case "0":
+                WareBearbeitenMenu(); // Zurück zum Ware-Bearbeiten-Menu
+                break;
+            default:
+                System.out.println("Incorrect input!"); // Fehlermeldung
+                WareBearbeitenList(); // Bearbeiten wiederholen
+                break;
+        }
+    }
+
+    private static void WareBearbeiten(IWare ware) throws IOException, DaoException {
+        System.out.println("---< Kaufvertrag - %s - Ware - Bearbeiten - %s >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT), ware.getBezeichnung()));
+        String[] inputfields = KaufvertragDaten.WareInputfields;
+        String[] wData = {ware.getBezeichnung(), String.valueOf(ware.getPreis()), ware.getBeschreibung(), String.join(",", ware.getBesonderheiten()), String.join(",", ware.getMaengel())};
+        for(int counter = 0; counter < inputfields.length; counter++){
+            System.out.println("[%d] %s (%s)".formatted((counter+1), inputfields[counter], wData[counter]));
+        }
+        System.out.println("[Delete] Löschen");
+        System.out.print("[0] Zurück");
+        if(hasChanged) {
+            System.out.print(" / Save");
+        }
+        System.out.println();
+
+        String input = getInput();
+        switch (input) {
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+                hasChanged = true;
+                int numberInput = Integer.parseInt(input);
+                System.out.print("%s (%s): ".formatted(inputfields[numberInput-1], wData[numberInput-1]));
+                String updatedInput = getInput();
+
+                switch (inputfields[numberInput-1]){
+                    case "Bezeichnung": ware.setBezeichnung(updatedInput); break;
+                    case "Preis (Euro)": {
+                        if (isNumeric(updatedInput)) {
+                            ware.setPreis(Double.parseDouble(updatedInput));
+                        } else {
+                            System.out.println("[Error] Preis muss eine Zahl sein! Tip (, -> .)");
+                        }
+                        break;
+                    }
+                    case "Beschreibung": ware.setBeschreibung(updatedInput); break;
+                    case "Besonderheiten (Komma getrennte Aufzählung)": ware.getBesonderheiten().addAll(Arrays.asList(updatedInput.split(","))); break;
+                    case "Mängel (Komma getrennte Aufzählung)": ware.getMaengel().addAll(Arrays.asList(updatedInput.split(","))); break;
+                }
+                WareBearbeiten(ware);
+                break;
+            case "delete":
+            case "Delete":
+                dl.getWareDao().delete(ware.getId());
+                WareBearbeitenList(); // Zurück zum Vertragspartner Bearbeiten Liste
+                break;
+            case "0":
+                dl.getWareDao().update(ware);
+                WareBearbeitenList(); // Zurück zum Vertragspartner Bearbeiten Liste
+                break;
+            default:
+                System.out.println("Incorrect input!"); // Fehlermeldung
+                WareBearbeiten(ware); // Bearbeiten wiederholen
+                break;
+        }
+    }
+
+    private static void WareNeuErstellen() throws IOException, DaoException {
+        dateiEinlesen(dlm.persistenceType, false); // Einlesen der Daten
+        System.out.println("---< Kaufvertrag - %s - Ware - Neu erstellen >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT))); // Heading
+
+        String[] inputfields = KaufvertragDaten.WareInputfields; // Input felder zum erstellen eines Vertragspartners (Bezeichnung, Preis, Beschreibung, Besonderheiten, ...)
+        List<String> input = new ArrayList<>();
+        do {
+            input = getFastInput(inputfields); // Eingabe der Inputfelder List = [Bezeichnung, Preis, Beschreibung, Besonderheiten, ...]
+            if(!isNumeric(input.get(1))){
+                System.out.println("[Error] Preis muss eine Zahl sein! Tip: (',' -> '.')");
+            }
+        }while(!isNumeric(input.get(1))); // Prüfung, ob der Preis eine Zahl ist
+
+        IWare newW = new Ware(input.get(0), Double.parseDouble(input.get(1))); // Ware erstellen
+        newW.setBeschreibung(input.get(2));
+        // input.get(3) semicolon separated list of besonderheiten
+        String[] besonderheiten = input.get(3).split(",");
+        for(String besonderheit : besonderheiten) {
+            newW.getBesonderheiten().add(besonderheit.trim());
+        }
+        // input.get(4) semicolon separated list of maengel
+        String[] maengel = input.get(4).split(",");
+        for(String maengelString : maengel) {
+            newW.getMaengel().add(maengelString.trim());
+        }
+
+        newW.setId(idCounter); // Set id to new id counter (So that it is unique)
+        idCounter++; // Increment id counter
+
+        System.out.println(newW.toString());
+
+        dl.getWareDao().create(newW); // Ware speichern
+        WareBearbeitenMenu(); // Zurück zum Vertragspartner-Bearbeiten-Menü
+    }
+
+    private static boolean isNumeric(String str) {
+        try {
+            double d = Double.parseDouble(str);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 
     private static void NeuErstellen() {

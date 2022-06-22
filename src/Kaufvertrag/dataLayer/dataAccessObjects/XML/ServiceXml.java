@@ -18,6 +18,7 @@ import org.jdom2.output.XMLOutputter;
 import java.io.*;
 import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ServiceXml {
@@ -124,8 +125,11 @@ public class ServiceXml {
         wareElement.removeContent();
         wareElement.addContent(new Element("id").setText(String.valueOf(ware.getId())));
         wareElement.addContent(new Element("bezeichnung").setText(String.valueOf(ware.getBezeichnung())));
-        wareElement.addContent(new Element("beschreibung").setText(String.valueOf(ware.getBeschreibung())));
         wareElement.addContent(new Element("preis").setText(String.valueOf(ware.getPreis())));
+        wareElement.addContent(new Element("beschreibung").setText(String.valueOf(ware.getBeschreibung())));
+        wareElement.addContent(new Element("besonderheiten").setText(String.join(",", ware.getBesonderheiten())));
+        wareElement.addContent(new Element("maengel").setText(String.join(",", ware.getMaengel())));
+
         XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
         xmlOutputter.output(document, fos);
         fos.close();
@@ -152,8 +156,11 @@ public class ServiceXml {
             Element wareElement = new Element("Ware");
             wareElement.addContent(new Element("id").setText(String.valueOf(ware.getId())));
             wareElement.addContent(new Element("bezeichnung").setText(bezeichnung));
-            wareElement.addContent(new Element("beschreibung").setText(beschreibung));
             wareElement.addContent(new Element("preis").setText(String.valueOf(preis)));
+            wareElement.addContent(new Element("beschreibung").setText(beschreibung));;
+            wareElement.addContent(new Element("besonderheiten").setText(String.join(",", ware.getBesonderheiten())));
+            wareElement.addContent(new Element("maengel").setText(String.join(",", ware.getMaengel())));
+
             root.addContent(wareElement);
         }
         Ware newWare = new Ware(bezeichnung, preis);
@@ -228,40 +235,53 @@ public class ServiceXml {
 
     public void deleteWare(int id) throws IOException {
         FileOutputStream fos = new FileOutputStream(pathname);
-        Element wareElement = root.getChild("Ware");
-        wareElement.removeContent();
+
+        List<Element> wareElements = root.getChildren("Ware"); // get all Ware Elements
+        System.out.println(wareElements.size());
+        for(Element ware : wareElements) { // iterate over all Ware Elements
+            if(ware.getChildText("id").equals(String.valueOf(id))) { // if id is found
+                ware.removeContent(); // remove Ware Element
+                ware.detach(); // detach Ware Element
+            }
+        }
+
         XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
         xmlOutputter.output(document, fos);
         fos.close();
     }
 
     public List<IWare> Ware(){
-        List<IWare> wareList = null;
+        List<IWare> wareList = new ArrayList<>();
         List<Element> wData = root.getChildren("Ware"); // Finds the first child element called "Ware"
         for (Element w : wData) {
 
-            String id = w.getChildText("id");
 
-            String bezeichnung = w.getChildText("bezeichnung");
-            String beschreibung = w.getChildText("beschreibung");
-            String preis = w.getChildText("preis");
-            String besonderheiten = w.getChildText("besonderheiten");
-            String maengel = w.getChildText("maengel");
+            try {
+                String id = w.getChildText("id");
+                String bezeichnung = w.getChildText("bezeichnung");
+                String beschreibung = w.getChildText("beschreibung");
+                String preis = w.getChildText("preis");
+                List<String> besonderheiten = Arrays.asList(w.getChildText("besonderheiten").split(","));
+                List<String> maengel = Arrays.asList(w.getChildText("maengel").split(","));
 
-            if( bezeichnung != null && preis != null && isNumeric(preis)){
+                if (bezeichnung != null && preis != null && isNumeric(preis) && isNumeric(id)) {
 
-                IWare ware = null;
-                if(beschreibung != null){
-                    ware.setBeschreibung(beschreibung);
+                    IWare ware = new Ware(bezeichnung, Double.parseDouble(preis));
+                    ware.setId(Integer.parseInt(id));
+                    if (beschreibung != null) {
+                        ware.setBeschreibung(beschreibung);
+                    }
+                    if (besonderheiten != null) {
+                        ware.getBesonderheiten().addAll(besonderheiten);
+                    }
+                    if (maengel != null) {
+                        ware.getMaengel().addAll(maengel);
+                    }
+                    wareList.add(ware);
+
                 }
-                if(besonderheiten != null) {
-                    ware.getBesonderheiten().add(besonderheiten);
-                }
-                if(maengel != null) {
-                    ware.getMaengel().add(maengel);
-                }
-                wareList.add(ware);
-
+            } catch (Exception e) {
+                System.out.println("[Error] Ware could not be loaded properly!");
             }
         }
         return wareList;
@@ -271,27 +291,31 @@ public class ServiceXml {
         List<Element> list = root.getChildren("Vertragspartner"); // Finds all children elements called "Vertragspartner"
         List<IVertragspartner> vertragspartnerList = new ArrayList<>();
         for (Element vertragspartner : list) { // iterates through all children of the root element
-            String id = vertragspartner.getChildText("id");
-            String vorname = vertragspartner.getChildText("vorname");
-            String nachname = vertragspartner.getChildText("nachname");
-            String ausweisnummer = vertragspartner.getChildText("ausweisNr");
-            Element adresseElement = vertragspartner.getChild("Adresse");
-            IAdresse adresse;
-            if(adresseElement != null){ // if the element is not null
-                String strasse = adresseElement.getChildText("strasse");
-                String hausNr = adresseElement.getChildText("hausNr");
-                String plz = adresseElement.getChildText("plz");
-                String ort = adresseElement.getChildText("ort");
-                adresse = new Adresse(strasse,hausNr,plz,ort); // create a new Adresse object
-            }else{
-                adresse = null; // if the element is null
-            }
-            IVertragspartner vertragspartner1 = new Vertragspartner(vorname, nachname); // create a new Vertragspartner object
-            vertragspartner1.setAdresse(adresse); // set the adresse of the Vertragspartner object
-            vertragspartner1.setAusweisNr(ausweisnummer); // set the ausweisnummer of the Vertragspartner object
-            vertragspartner1.setId(Integer.parseInt(id)); // set the id of the Vertragspartner object
+            try{
+                String id = vertragspartner.getChildText("id");
+                String vorname = vertragspartner.getChildText("vorname");
+                String nachname = vertragspartner.getChildText("nachname");
+                String ausweisnummer = vertragspartner.getChildText("ausweisNr");
+                Element adresseElement = vertragspartner.getChild("Adresse");
+                IAdresse adresse;
+                if(adresseElement != null){ // if the element is not null
+                    String strasse = adresseElement.getChildText("strasse");
+                    String hausNr = adresseElement.getChildText("hausNr");
+                    String plz = adresseElement.getChildText("plz");
+                    String ort = adresseElement.getChildText("ort");
+                    adresse = new Adresse(strasse,hausNr,plz,ort); // create a new Adresse object
+                }else{
+                    adresse = null; // if the element is null
+                }
+                IVertragspartner vertragspartner1 = new Vertragspartner(vorname, nachname); // create a new Vertragspartner object
+                vertragspartner1.setAdresse(adresse); // set the adresse of the Vertragspartner object
+                vertragspartner1.setAusweisNr(ausweisnummer); // set the ausweisnummer of the Vertragspartner object
+                vertragspartner1.setId(Integer.parseInt(id)); // set the id of the Vertragspartner object
 
-            vertragspartnerList.add(vertragspartner1); // add the Vertragspartner object to the list
+                vertragspartnerList.add(vertragspartner1); // add the Vertragspartner object to the list
+            }catch(Exception e){
+                System.out.println("[Error] Vertragspartner could not be loaded properly!");
+            }
         }
         return vertragspartnerList; // return the list
     }
