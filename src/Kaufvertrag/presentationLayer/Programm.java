@@ -151,7 +151,6 @@ public class Programm {
         System.out.println("---< Kaufvertrag - %s - Vertragspartner >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
         System.out.println("[1] Neu erstellen"); // Erstellen eines neuen Vertragspartners
         System.out.println("[2] Bearbeiten"); // Bearbeiten eines Vertragspartners
-        System.out.println("[3] Löschen"); // Löschen eines Vertragspartners
         System.out.println("[0] Zurück");
         String input = getInput();
         switch (input) {
@@ -160,9 +159,6 @@ public class Programm {
                 break;
             case "2":
                 VertragspartnerBearbeitenList(); // Bearbeiten eines Vertragspartners
-                break;
-            case "3":
-                VertragspartnerLoeschenMenu(); // Löschen eines Vertragspartners
                 break;
             case "0":
                 Bearbeiten(); // Zurück zum Bearbeiten
@@ -233,6 +229,7 @@ public class Programm {
         for(int counter = 0; counter < inputfields.length; counter++){
             System.out.println("[%d] %s (%s)".formatted((counter+1), inputfields[counter], vpData[counter]));
         }
+        System.out.println("[Delete] Löschen");
         System.out.print("[0] Zurück");
         if(hasChanged) {
             System.out.print(" / Save");
@@ -263,6 +260,11 @@ public class Programm {
                 }
                 VertragspartnerBearbeiten(vp);
                 break;
+            case "delete":
+            case "Delete":
+                dl.getVertragspartnerDao().delete(vp.getId());
+                VertragspartnerBearbeitenList(); // Zurück zum Vertragspartner Bearbeiten Liste
+                break;
             case "0":
                 dl.getVertragspartnerDao().update(vp);
                 VertragspartnerBearbeitenList(); // Zurück zum Vertragspartner Bearbeiten Liste
@@ -273,53 +275,6 @@ public class Programm {
                 break;
         }
 
-    }
-
-    private static void VertragspartnerLoeschenMenu() throws IOException, DaoException {
-        dateiEinlesen(dlm.persistenceType, false); // Datei einlesen
-        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Löschen >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
-
-        for(int i = 0; i < KaufvertragDaten.Vertragspartner.size(); i++) {
-            IVertragspartner vp = KaufvertragDaten.Vertragspartner.get(i); // Vertragspartner aus Liste holen
-            IAdresse a = vp.getAdresse(); // Adresse des Vertragspartners aus Liste holen
-            System.out.println("[%d] %s, %s, %s, %s, %s, %s, %s".formatted(i+1, vp.getVorname(), vp.getNachname(), vp.getAusweisNr(), a.getStrasse(), a.getHausNr(), a.getPlz(), a.getOrt())); // Ausgabe der Vertragspartner
-        }
-        System.out.println("[0] Zurück");
-        String input = getInput();
-        switch (input) {
-            case "1":
-            case "2":
-                VertragspartnerLoeschen(KaufvertragDaten.Vertragspartner.get(Integer.parseInt(input)-1));
-                break;
-            case "0":
-                VertragspartnerBearbeitenMenu(); // Zurück zum Vertragspartner Bearbeiten Menu
-                break;
-            default:
-                System.out.println("[Error] Incorrect input!"); // Fehlermeldung
-                VertragspartnerLoeschenMenu(); // Bearbeiten wiederholen
-                break;
-        }
-    }
-
-    private static void VertragspartnerLoeschen(IVertragspartner vp) throws DaoException, IOException {
-        System.out.println("---< Kaufvertrag - %s - Vertragspartner - Löschen - %s, %s >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT), vp.getVorname(), vp.getNachname()));
-        System.out.println("Sind Sie sicher, dass Sie den Vertragspartner löschen möchten?");
-        System.out.println("[1] Vertragspartner löschen (%s, %s, %s)".formatted(vp.getVorname(), vp.getNachname(), vp.getAusweisNr()));
-        System.out.println("[0] Zurück");
-        String input = getInput();
-        switch (input) {
-            case "1":
-                dl.getVertragspartnerDao().delete(vp.getId());
-                VertragspartnerLoeschenMenu(); // Zurück zum Vertragspartner Löschen Liste
-                break;
-            case "0":
-                VertragspartnerLoeschenMenu(); // Zurück zum Vertragspartner Löschen Menu
-                break;
-            default:
-                System.out.println("[Error] Incorrect input!"); // Fehlermeldung
-                VertragspartnerLoeschen(vp); // Löschen wiederholen
-                break;
-        }
     }
 
     private static void WareBearbeitenMenu() {

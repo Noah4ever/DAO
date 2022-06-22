@@ -1,16 +1,2 @@
-?xml version="1.0" encoding="UTF-8"?>
-<Kaufvertrag>
-  <Vertragspartner>
-    <id>0</id>
-    <vorname>Noah</vorname>
-    <nachname>Thiering</nachname>
-    <ausweisNr>12365121</ausweisNr>
-    <Adresse>
-      <strasse>as</strasse>
-      <hausNr>d</hausNr>
-      <plz>s</plz>
-      <ort>Syke</ort>
-    </Adresse>
-  </Vertragspartner>
-  <Vertragspartner />
-</Kaufvertrag>
+<?xml version="1.0" encoding="UTF-8"?>
+<Kaufvertrag />
