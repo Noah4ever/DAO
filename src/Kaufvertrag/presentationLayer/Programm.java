@@ -109,7 +109,7 @@ public class Programm {
 
     private static void dateiEinlesen(String persistenceType, boolean verbose) throws DaoException, IOException {
         if(verbose)
-            System.out.println("[Info] Read file...");
+            System.out.println("[Info] Reading...");
         dlm.getInstance().persistenceType = persistenceType;
         dl = dlm.getDataLayer();
         List<IVertragspartner> vp = dl.getVertragspartnerDao().read(); // Einlesen aller Vertragspartner
@@ -138,7 +138,7 @@ public class Programm {
                 Ausgabe(); // Ausgabe des Kaufvertrags
                 break;
             case "0":
-                MainMenu(); // Zurück zum Hauptmenü
+                Einlesen(); // Zurück zum Hauptmenü
                 break;
             default:
                 System.out.println("[Error] Incorrect input!"); // Fehlermeldung
@@ -147,11 +147,115 @@ public class Programm {
         }
     }
 
-    private static void Ausgabe() {
-        System.out.println("---< Kaufvertrag - %s - Ausgabe >---".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
-        System.out.println("\n\n\n");
-        // TODO: Schöne Ausgabe hier (Schöne Tabelle mit | _ - und sowas, wie bei excel)
-        System.out.println("Krass schöne Ausgabe hier!");
+    private static void Ausgabe() throws IOException, DaoException {
+        dateiEinlesen(dlm.persistenceType, false);
+        System.out.println("---< Kaufvertrag - %s - Ausgabe >---\n".formatted(dlm.persistenceType.toUpperCase(Locale.ROOT)));
+
+        String[] vHeadingText = {"Vorname", "Nachname", "Ausweisnummer", "Strasse", "Hausnummer", "PLZ", "Ort"};
+        int[] headingSpaces = getMaxLengths(vHeadingText, true);
+
+        int[] colLength = new int[headingSpaces.length]; // Spalten breite
+
+        getHorizontalLine(vHeadingText, headingSpaces); // Horizontale Linie mit korrekten Abständen
+        for(int counter = 0; counter < vHeadingText.length; counter++){ // Heading Text mit korrekten Leerzeichen
+            int spaceCount = headingSpaces[counter] - vHeadingText[counter].length();
+            colLength[counter] = vHeadingText[counter].length() + (spaceCount > 0 ? spaceCount : 0);
+            System.out.format("| %s%s ", vHeadingText[counter], getStringRepeat(" ", spaceCount));
+        }
+        System.out.println("|"); // Letztes "|" mit "\n" danach
+        getHorizontalLine(vHeadingText, headingSpaces); // Horizontale Linie mit korrekten Abständen
+
+        String leftAlignFormatVertragspartner = "";
+        for(int counter = 0; counter < vHeadingText.length; counter++){
+            leftAlignFormatVertragspartner += "| %-" + colLength[counter] + "s ";
+        }
+        leftAlignFormatVertragspartner += "|%n";
+        for(IVertragspartner v : KaufvertragDaten.Vertragspartner){
+            IAdresse a = v.getAdresse();
+            System.out.format(leftAlignFormatVertragspartner, v.getVorname(), v.getNachname(), v.getAusweisNr(), a.getStrasse(), a.getHausNr(), a.getPlz(), a.getOrt());
+        }
+        if(KaufvertragDaten.Vertragspartner.size() == 0){ // Wenn kein Vertragspartner vorhanden ist
+            System.out.format(leftAlignFormatVertragspartner, "-", "-", "-", "-", "-", "-", "-");
+        }
+        getHorizontalLine(vHeadingText, headingSpaces); // Horizontale Linie mit korrekten Abständen
+
+
+        System.out.println(""); // New line --------------------
+
+
+        String[] wHeadingText = {"Bezeichnung", "Preis", "Beschreibung", "Besonderheiten", "Mängel"};
+        headingSpaces = getMaxLengths(wHeadingText, false);
+
+        colLength = new int[headingSpaces.length]; // Spalten breite
+
+        getHorizontalLine(wHeadingText, headingSpaces); // Horizontale Linie mit korrekten Abständen
+        for(int counter = 0; counter < wHeadingText.length; counter++){ // Heading Text mit korrekten Leerzeichen
+            int spaceCount = headingSpaces[counter] - wHeadingText[counter].length();
+            colLength[counter] = wHeadingText[counter].length() + (spaceCount > 0 ? spaceCount : 0);
+            System.out.format("| %s%s ", wHeadingText[counter], getStringRepeat(" ", spaceCount));
+        }
+        System.out.println("|"); // Letztes "|" mit "\n" danach
+        getHorizontalLine(wHeadingText, headingSpaces); // Horizontale Linie mit korrekten Abständen
+
+        String leftAlignFormatWare = "";
+        for(int counter = 0; counter < wHeadingText.length; counter++){
+            leftAlignFormatWare += "| %-" + colLength[counter] + "s ";
+        }
+        leftAlignFormatWare += "|%n";
+        for(IWare w : KaufvertragDaten.Waren){
+            System.out.format(leftAlignFormatWare, w.getBezeichnung(), w.getPreis(), w.getBeschreibung(), String.join(",", w.getBesonderheiten()), String.join(",", w.getMaengel()));
+        }
+        if(KaufvertragDaten.Waren.size() == 0){ // Wenn kein Vertragspartner vorhanden ist
+            System.out.format(leftAlignFormatWare, "-", "-", "-", "-", "-");
+        }
+        getHorizontalLine(wHeadingText, headingSpaces); // Horizontale Linie mit korrekten Abständen
+
+        System.out.print("> ");
+        reader.readLine(); // Eingabe von der Konsole
+        Bearbeiten();
+    }
+
+    private static void getHorizontalLine(String[] vHeadingText, int[] headingSpaces) {
+        for(int counter = 0; counter < vHeadingText.length; counter++){
+            int spaceCount = headingSpaces[counter] - vHeadingText[counter].length();
+            System.out.format("+%s--", getStringRepeat("-", vHeadingText[counter].length() + (spaceCount > 0 ? spaceCount : 0)));
+        }
+        System.out.println("+");
+    }
+
+    private static String getStringRepeat(String str, int count){
+        if(count < 0){ // If count smaller than 0
+            return "";
+        }
+        return str.repeat(count);
+    }
+
+    private static int[] getMaxLengths(String[] headingText, boolean vertragspartner){
+        int[] maxLengths = new int[headingText.length];
+
+        List<String[]> vData = new ArrayList<>();
+        if(vertragspartner) {
+            for (IVertragspartner v : KaufvertragDaten.Vertragspartner) {
+                IAdresse a = v.getAdresse();
+                vData.add(new String[]{v.getVorname(), v.getNachname(), v.getAusweisNr(), a.getStrasse(), a.getHausNr(), a.getPlz(), a.getOrt()});
+            }
+        }else{
+            for(IWare w : KaufvertragDaten.Waren){
+                vData.add(new String[]{w.getBezeichnung(), String.valueOf(w.getPreis()), w.getBeschreibung(), String.join(",", w.getBesonderheiten()), String.join(",", w.getMaengel())});
+            }
+        }
+
+        for(int counter = 0; counter < headingText.length; counter++){
+            int vMax = 0;
+            if(vData.size() == 2){
+                vMax = Math.max(vData.get(0)[counter].length(), vData.get(1)[counter].length());
+            }else if(vData.size() == 1){
+                vMax = vData.get(0)[counter].length();
+            }
+            maxLengths[counter] = vMax;
+        }
+
+        return maxLengths;
     }
 
     private static void VertragspartnerBearbeitenMenu() throws DaoException, IOException {
@@ -370,19 +474,19 @@ public class Programm {
                         if (isNumeric(updatedInput)) {
                             ware.setPreis(Double.parseDouble(updatedInput));
                         } else {
-                            System.out.println("[Error] Preis muss eine Zahl sein! Tip (, -> .)");
+                            System.out.println("[Error] Preis muss eine Zahl sein! Tip: (, -> .)");
                         }
                         break;
                     }
                     case "Beschreibung": ware.setBeschreibung(updatedInput); break;
-                    case "Besonderheiten (Komma getrennte Aufzählung)": ware.getBesonderheiten().addAll(Arrays.asList(updatedInput.split(","))); break;
-                    case "Mängel (Komma getrennte Aufzählung)": ware.getMaengel().addAll(Arrays.asList(updatedInput.split(","))); break;
+                    case "Besonderheiten (Komma getrennte Aufzählung)": ware.getBesonderheiten().clear(); ware.getBesonderheiten().addAll(Arrays.asList(updatedInput.split(","))); break;
+                    case "Mängel (Komma getrennte Aufzählung)": ware.getMaengel().clear(); ware.getMaengel().addAll(Arrays.asList(updatedInput.split(","))); break;
                 }
                 WareBearbeiten(ware);
                 break;
             case "delete":
             case "Delete":
-                dl.getWareDao().delete(ware.getId());
+                dl.getWareDao().delete(ware.getId()); // Löschen eines Vertragspartners
                 WareBearbeitenList(); // Zurück zum Vertragspartner Bearbeiten Liste
                 break;
             case "0":
@@ -411,12 +515,12 @@ public class Programm {
 
         IWare newW = new Ware(input.get(0), Double.parseDouble(input.get(1))); // Ware erstellen
         newW.setBeschreibung(input.get(2));
-        // input.get(3) semicolon separated list of besonderheiten
+        // input.get(3) comma separated list of besonderheiten
         String[] besonderheiten = input.get(3).split(",");
         for(String besonderheit : besonderheiten) {
             newW.getBesonderheiten().add(besonderheit.trim());
         }
-        // input.get(4) semicolon separated list of maengel
+        // input.get(4) comma separated list of maengel
         String[] maengel = input.get(4).split(",");
         for(String maengelString : maengel) {
             newW.getMaengel().add(maengelString.trim());
@@ -424,8 +528,6 @@ public class Programm {
 
         newW.setId(idCounter); // Set id to new id counter (So that it is unique)
         idCounter++; // Increment id counter
-
-        System.out.println(newW.toString());
 
         dl.getWareDao().create(newW); // Ware speichern
         WareBearbeitenMenu(); // Zurück zum Vertragspartner-Bearbeiten-Menü

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IVertragspartnerDao {
     public IVertragspartner create() throws DaoException, IOException;
-    public IVertragspartner create(IVertragspartner vertragspartner) throws IOException;
+    public IVertragspartner create(IVertragspartner vertragspartner) throws IOException, DaoException;
     public List<IVertragspartner> read() throws DaoException;
     public IVertragspartner read(int id) throws DaoException;
     public void update(IVertragspartner vertragspartner) throws DaoException, IOException;

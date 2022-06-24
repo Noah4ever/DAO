@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Kaufvertrag>
+  <Vertragspartner>
+    <id>0</id>
+    <vorname>Noah</vorname>
+    <nachname>Thiering</nachname>
+    <ausweisNr>L911URY123</ausweisNr>
+    <Adresse>
+      <strasse>Am Friedeberg</strasse>
+      <hausNr>11</hausNr>
+      <plz>28857</plz>
+      <ort>Syke</ort>
+    </Adresse>
+  </Vertragspartner>
+  <Vertragspartner>
+    <id>1</id>
+    <vorname>Janis</vorname>
+    <nachname>Meister</nachname>
+    <ausweisNr>M912NRY192</ausweisNr>
+    <Adresse>
+      <strasse>Borsighavenallee</strasse>
+      <hausNr>12</hausNr>
+      <plz>28106</plz>
+      <ort>Bremen</ort>
+    </Adresse>
+  </Vertragspartner>
+  <Ware>
+    <id>0</id>
+    <bezeichnung>Stock</bezeichnung>
+    <preis>2.49</preis>
+    <beschreibung>Krasser langer Stock!</beschreibung>
+    <besonderheiten>Test, Test1, Test2, TEST3</besonderheiten>
+    <maengel>Test4, Test5, TEST6, TEST7</maengel>
+  </Ware>
+</Kaufvertrag>

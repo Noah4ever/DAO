@@ -1,5 +1,6 @@
 package Kaufvertrag.dataLayer.dataAccessObjects.sqlite;
 
+import Kaufvertrag.businessObjects.IAdresse;
 import Kaufvertrag.businessObjects.IVertragspartner;
 import Kaufvertrag.exceptions.DaoException;
 import Kaufvertrag.dataLayer.businessObjects.Vertragspartner;
@@ -31,7 +32,7 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
                 String ort = rs.getString("ort");
                 String hausNr = rs.getString("hausNr");
 
-                Adresse adresse = new Adresse(strasse, plz, ort, hausNr);
+                Adresse adresse = new Adresse(strasse, hausNr, plz, ort);
 
                 vertragspartner = new Vertragspartner(vorname, nachname);
                 vertragspartner.setAusweisNr(ausweisNr);
@@ -39,14 +40,45 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Fehler beim Erstellen eines Vertragspartners");
+            throw new DaoException("[Error] Fehler beim Erstellen eines Vertragspartners!");
         }
         return vertragspartner;
     }
 
     @Override
-    public IVertragspartner create(IVertragspartner vertragspartner) {
-        return null;
+    public IVertragspartner create(IVertragspartner v) throws DaoException {
+        Connection connection = ConnectionManager.getNewConnection();
+        try {
+            if(countVetragspartner(connection) < 2){
+                String sql = "INSERT INTO Vertragspartner(id, vorname, nachname, ausweisNr, hausNr, plz, ort, strasse) VALUES(?,?,?,?,?,?,?,?)";
+                PreparedStatement pstmt = connection.prepareStatement("INSERT INTO Vertragspartner(id, vorname, nachname, ausweisNr, hausNr, plz, ort, strasse) VALUES(?,?,?,?,?,?,?,?)");
+                pstmt.setInt(1, v.getId());
+                pstmt.setString(2, v.getVorname());
+                pstmt.setString(3, v.getNachname());
+                pstmt.setString(4, v.getAusweisNr());
+                pstmt.setString(5, v.getAdresse().getHausNr());
+                pstmt.setString(6, v.getAdresse().getPlz());
+                pstmt.setString(7, v.getAdresse().getOrt());
+                pstmt.setString(8, v.getAdresse().getStrasse());
+                pstmt.executeUpdate();
+            }else{
+                System.out.println("[Error] Max. Vertragspartner (2)!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DaoException("[Error] Fehler beim Erstellen eines Vertragspartners!");
+        }
+        return new Vertragspartner("","");
+    }
+
+    private int countVetragspartner(Connection connection) throws SQLException {
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner;");
+        int counter = 0;
+        while(rs.next()){
+            counter++;
+        };
+        return counter;
     }
 
     @Override
@@ -56,29 +88,15 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
 
         try {
             Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner as v LEFT JOIN Adresse as a ON a.id = v.adresseId;");
-
+            ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner;");
             while (rs.next()) {
-                String vorname = rs.getString("vorname");
-                String nachname = rs.getString("nachname");
-                String ausweisNr = rs.getString("ausweisNr");
 
-                String strasse = rs.getString("strasse");
-                String plz = rs.getString("plz");
-                String ort = rs.getString("ort");
-                String hausNr = rs.getString("hausNr");
+                vertragspartnerList.add(getVertragspartner(rs));
 
-                Adresse adresse = new Adresse(strasse, plz, ort, hausNr);
-
-                IVertragspartner vertragspartner = new Vertragspartner(vorname, nachname);
-                vertragspartner.setAusweisNr(ausweisNr);
-                vertragspartner.setAdresse(adresse);
-
-                vertragspartnerList.add(vertragspartner);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Fehler beim Lesen der Vertragspartner");
+            throw new DaoException("[Error] Fehler beim Lesen der Vertragspartner!");
         }
         return  vertragspartnerList;
     }
@@ -93,26 +111,38 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
             ResultSet rs = stmt.executeQuery("SELECT * FROM Vertragspartner WHERE id = " + id + ";");
 
             while (rs.next()) {
-                String vorname = rs.getString("vorname");
-                String nachname = rs.getString("nachname");
-                String ausweisNr = rs.getString("ausweisNr");
 
-                String strasse = rs.getString("strasse");
-                String plz = rs.getString("plz");
-                String ort = rs.getString("ort");
-                String hausNr = rs.getString("hausNr");
-
-                Adresse adresse = new Adresse(strasse, plz, ort, hausNr);
-
-                vertragspartner = new Vertragspartner(vorname, nachname);
-                vertragspartner.setAusweisNr(ausweisNr);
-                vertragspartner.setAdresse(adresse);
+                vertragspartner = getVertragspartner(rs);
 
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Fehler beim Lesen eines Vertragspartners");
+            throw new DaoException("[Error] Fehler beim Lesen eines Vertragspartners!");
         }
+
+        return vertragspartner;
+    }
+
+    private IVertragspartner getVertragspartner(ResultSet rs) throws SQLException {
+        IVertragspartner vertragspartner;
+        IAdresse adresse;
+
+        String VertragspartnerId = rs.getString("id");
+        String vorname = rs.getString("vorname");
+        String nachname = rs.getString("nachname");
+        String ausweisNr = rs.getString("ausweisNr");
+
+        vertragspartner = new Vertragspartner(vorname, nachname, ausweisNr);
+        vertragspartner.setId(Integer.parseInt(VertragspartnerId));
+
+        String strasse = rs.getString("strasse");
+        String hausNr = rs.getString("hausNr");
+        String plz = rs.getString("plz");
+        String ort = rs.getString("ort");
+
+        adresse = new Adresse(strasse, hausNr, plz, ort);
+
+        vertragspartner.setAdresse(adresse);
 
         return vertragspartner;
     }
@@ -133,7 +163,7 @@ public class VertragspartnerDaoSqlite implements IVertragspartnerDao {
                     "' WHERE id = " + vertragspartner.getId() + ";");
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Fehler beim Update eines Vertragspartners");
+            throw new DaoException("[Error] Fehler beim Update eines Vertragspartners!");
         }
 
     }

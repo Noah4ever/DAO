@@ -8,6 +8,7 @@ import Kaufvertrag.dataLayer.dataAccessObjects.DataLayerManager;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class WareDaoSqlite implements IWareDao {
@@ -33,7 +34,7 @@ public class WareDaoSqlite implements IWareDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Fehler beim Erstellen einer Ware");
+            throw new DaoException("[Error] Fehler beim Erstellen einer Ware");
         }
 
         return ware;
@@ -41,30 +42,45 @@ public class WareDaoSqlite implements IWareDao {
 
     @Override
     public IWare create(IWare ware) throws DaoException {
-        // SAve to sql
+        // Save to sql
         Connection connection = ConnectionManager.getNewConnection();
         try {
-            String besonderheitenString = "";
-            for (String besonderheit : ware.getBesonderheiten()) {
-                besonderheitenString += besonderheit + ";";
-            }
+            if(countWare(connection) < 1){
+                String besonderheitenString = "";
+                for (String besonderheit : ware.getBesonderheiten()) {
+                    besonderheitenString += besonderheit + ";";
+                }
+                String maengelString = "";
+                for (String maengel : ware.getMaengel()) {
+                    maengelString += maengel + ";";
+                }
 
-            String maengelString = "";
-            for (String maengel : ware.getMaengel()) {
-                maengelString += maengel + ";";
+                PreparedStatement stmt = connection.prepareStatement("INSERT INTO Ware (id, bezeichnung, preis, beschreibung, maengel, besonderheiten) VALUES (?, ?, ?, ?, ?, ?);");
+                stmt.setInt(1, ware.getId());
+                stmt.setString(2, ware.getBezeichnung());
+                stmt.setString(3, String.valueOf(ware.getPreis()));
+                stmt.setString(4, ware.getBeschreibung());
+                stmt.setString(5, besonderheitenString);
+                stmt.setString(6, maengelString);
+                stmt.executeUpdate();
+            }else{
+                System.out.println("[Error] Max. Ware (1)!");
             }
-            PreparedStatement stmt = connection.prepareStatement("INSERT INTO Ware (bezeichnung, preis, beschreibung, maengel, besonderheiten) VALUES (?, ?, ?, ?, ?);");
-            stmt.setString(1, ware.getBezeichnung());
-            stmt.setString(2, String.valueOf(ware.getPreis()));
-            stmt.setString(3, ware.getBeschreibung());
-            stmt.setString(4, besonderheitenString);
-            stmt.setString(5, maengelString);
-            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Fehler beim Erstellen einer Ware");
+            throw new DaoException("[Error] Fehler beim Erstellen einer Ware");
         }
         return ware;
+    }
+
+    private int countWare(Connection connection) throws SQLException {
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT * FROM Ware;");
+        int counter = 0;
+        while(rs.next()){
+            counter++;
+        };
+        return counter;
     }
 
     @Override
@@ -77,21 +93,32 @@ public class WareDaoSqlite implements IWareDao {
             ResultSet rs = stmt.executeQuery("SELECT * FROM Ware;");
 
             while (rs.next()) {
+                String wareId = rs.getString("id");
                 String bezeichnung = rs.getString("bezeichnung");
                 String preis = rs.getString("preis");
                 String beschreibung = rs.getString("beschreibung");
+                String besonderheiten = rs.getString("besonderheiten");
+                String maengel = rs.getString("maengel");
+
 
                 IWare ware = new Ware(bezeichnung, Double.parseDouble(preis));
+                ware.setId(Integer.parseInt(wareId));
                 ware.setBeschreibung(beschreibung);
+                ware.getBesonderheiten().addAll(Arrays.asList(besonderheiten.split(",")));
+                ware.getMaengel().addAll(Arrays.asList(maengel.split(",")));
+
+
                 wareList.add(ware);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Fehler beim Lesen der Datenbank");
+            throw new DaoException("[Error] Fehler beim Lesen der Datenbank");
         }
 
         return wareList;
     }
+
+
 
     @Override
     public IWare read(int id) throws DaoException {
@@ -112,7 +139,7 @@ public class WareDaoSqlite implements IWareDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("WareDaoSqlite: read(int id)");
+            throw new DaoException("[Error] WareDaoSqlite: read(int id)");
         }
         return ware;
     }
@@ -125,7 +152,7 @@ public class WareDaoSqlite implements IWareDao {
             stmt.executeUpdate("UPDATE Ware SET bezeichnung = '" + ware.getBezeichnung() + "', preis = " + ware.getPreis() + ", beschreibung = '" + ware.getBeschreibung() + "', maengel = '" + ware.getMaengel() + "', besonderheiten = '" + ware.getBesonderheiten() + "' WHERE id = " + ware.getId() + ";");
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Ware konnte nicht aktualisiert werden");
+            throw new DaoException("[Error] Ware konnte nicht aktualisiert werden");
         }
     }
 
@@ -137,7 +164,7 @@ public class WareDaoSqlite implements IWareDao {
             stmt.executeUpdate("DELETE FROM Ware WHERE id = " + id + ";");
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new DaoException("Ware konnte nicht gelöscht werden");
+            throw new DaoException("[Error] Ware konnte nicht gelöscht werden");
         }
     }
 }

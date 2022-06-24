@@ -3,12 +3,15 @@ package Kaufvertrag.dataLayer.businessObjects;
 import Kaufvertrag.businessObjects.IAdresse;
 import Kaufvertrag.businessObjects.IVertragspartner;
 
+import java.util.Arrays;
+
 public class Vertragspartner implements IVertragspartner {
     private int id;
     private String vorname;
     private String nachname;
     private String ausweisNr;
     private IAdresse adresse;
+    private String array;
 
     public Vertragspartner(String vorname, String nachname) {
         this.vorname = vorname;
@@ -74,4 +77,5 @@ public class Vertragspartner implements IVertragspartner {
     public String toString() {
         return "Vertragspartner{vorname='%s', nachname='%s', ausweisNr='%s', \n".formatted(vorname, nachname, ausweisNr) + adresse.toString() + "}";
     }
+
 }

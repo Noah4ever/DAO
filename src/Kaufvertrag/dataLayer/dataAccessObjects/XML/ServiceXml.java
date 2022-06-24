@@ -94,7 +94,6 @@ public class ServiceXml {
         List<Element> vertragspartnerList = root.getChildren("Vertragspartner"); // get the list of vertragspartner
 
         for(Element v : vertragspartnerList) { // iterate through the list
-            System.out.println("%s == %s = %b (%s)".formatted(v.getChildText("id"), vertragspartner.getId(), v.getChildText("id").equals(String.valueOf(vertragspartner.getId())), v.getChildText("vorname")));
             if (v.getChildText("id").equals(String.valueOf(vertragspartner.getId()))) { // if the id is the same as the id of the vertragspartner
                 v.getChild("id").setText(String.valueOf(vertragspartner.getId()));
                 v.getChild("vorname").setText(vertragspartner.getVorname());
@@ -162,6 +161,8 @@ public class ServiceXml {
             wareElement.addContent(new Element("maengel").setText(String.join(",", ware.getMaengel())));
 
             root.addContent(wareElement);
+        }else{
+            System.out.println("[Error] Max. Ware (1)!");
         }
         Ware newWare = new Ware(bezeichnung, preis);
         newWare.setBeschreibung(beschreibung);
@@ -183,7 +184,7 @@ public class ServiceXml {
         XMLOutputter xmlOutputter = new XMLOutputter(Format.getPrettyFormat());
         xmlOutputter.output(document, fos);
         fos.close();
-        return new Vertragspartner("",  "");
+        return new Vertragspartner("",  ""); // TODO: fix? (Not empty Vertragspartner)
     }
 
     public IVertragspartner createVertragspartnerElement(IVertragspartner vertragspartner) throws IOException {
@@ -205,6 +206,8 @@ public class ServiceXml {
             adresseElement.addContent(new Element("ort").setText(adresse.getOrt()));
             vertragspartnerElement.addContent(adresseElement);
             root.addContent(vertragspartnerElement);
+        }else{
+            System.out.println("[Error] Max. Vertragspartner (2)!");
         }
         Vertragspartner newVertragspartner = new Vertragspartner(vorname, nachmane);
         newVertragspartner.setAusweisNr(ausweisnummer);
