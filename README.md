@@ -16,6 +16,9 @@ Kaufvertrag erstellung
     -	Der Benutzer kann zwischen: Vorname, Nachname, Ausweisnummer, Straße, Hausnummer, PLZ, Ort und „Delete“ wählen.
     -	Wenn er etwas verändern möchte, wird er aufgefordert seine Auswahl zu überschreiben.
     -	Bei „Delete“ wird die Ware gelöscht.
+
+![image](https://user-images.githubusercontent.com/66632359/175576209-ed9d9ee0-49f5-4696-98b1-cc6d9fe9495e.png)
+
 ###	Ware:
   -	Der Benutzer kann zwischen: Neu erstellen und Bearbeiten wählen:
   -	Neu erstellen:
@@ -25,8 +28,12 @@ Kaufvertrag erstellung
     -	Der Benutzer kann zwischen: Bezeichnung, Preis, Beschreibung, Besonderheiten und Mängel und „Delete“ wählen.
     -	Wenn er etwas verändern möchte, wird er aufgefordert seine Auswahl zu überschreiben.
     -	Bei „Delete“ wird die Ware gelöscht.
+
+![image](https://user-images.githubusercontent.com/66632359/175576449-c99080b6-3e39-4102-aa46-ab7ffb3baf15.png)
+
 ###	Ausgabe:
   -	Die Vertragspartner sowie die Ware werden in Tabellenform ausgegeben.
+![image](https://user-images.githubusercontent.com/66632359/175576084-aa8dae49-62bf-456f-ab4d-191d79feddb4.png)
 
 
 ![image](https://user-images.githubusercontent.com/66632359/175573630-c7c30b83-bf2e-454b-b2e9-e9b6301189f6.png)
