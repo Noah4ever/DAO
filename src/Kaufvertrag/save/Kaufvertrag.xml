@@ -3,7 +3,7 @@
   <Vertragspartner>
     <id>0</id>
     <vorname>Noah</vorname>
-    <nachname>Thiering</nachname>
+    <nachname>Fiering</nachname>
     <ausweisNr>L911URY123</ausweisNr>
     <Adresse>
       <strasse>Am Friedeberg</strasse>
@@ -15,7 +15,7 @@
   <Vertragspartner>
     <id>1</id>
     <vorname>Janis</vorname>
-    <nachname>Meister</nachname>
+    <nachname>Kleister</nachname>
     <ausweisNr>M912NRY192</ausweisNr>
     <Adresse>
       <strasse>Borsighavenallee</strasse>
