@@ -25,11 +25,11 @@
     </Adresse>
   </Vertragspartner>
   <Ware>
-    <id>0</id>
-    <bezeichnung>Stock</bezeichnung>
-    <preis>2.49</preis>
-    <beschreibung>Krasser langer Stock!</beschreibung>
-    <besonderheiten>Test, Test1, Test2, TEST3</besonderheiten>
-    <maengel>Test4, Test5, TEST6, TEST7</maengel>
+    <id>2</id>
+    <bezeichnung>Laptop4</bezeichnung>
+    <preis>100.0</preis>
+    <beschreibung>Silber und wie neu</beschreibung>
+    <besonderheiten>silber,neu</besonderheiten>
+    <maengel>Kratzer,Ladekabel nicht dabei</maengel>
   </Ware>
 </Kaufvertrag>

@@ -55,7 +55,7 @@ public class WareDaoSqlite implements IWareDao {
                     maengelString += maengel + ";";
                 }
 
-                PreparedStatement stmt = connection.prepareStatement("INSERT INTO Ware (id, bezeichnung, preis, beschreibung, maengel, besonderheiten) VALUES (?, ?, ?, ?, ?, ?);");
+                PreparedStatement stmt = connection.prepareStatement("INSERT INTO Ware (id, bezeichnung, preis, beschreibung, besonderheiten, maengel) VALUES (?, ?, ?, ?, ?, ?);");
                 stmt.setInt(1, ware.getId());
                 stmt.setString(2, ware.getBezeichnung());
                 stmt.setString(3, String.valueOf(ware.getPreis()));
